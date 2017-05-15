@@ -12,8 +12,8 @@ LOCAL_FOLDER = PRE_LOCAL + DRIVE_LETTER  + "/MGSV\ saves/"
 # MGSV Folders, no need to change these
 MGSV1 = "287700"
 MGSV2 = "311340"
-# User ID, put your own here (from Steam directory -> userdata)
-USERID = "61333905"
+# User ID, put your own here (from Steam directory -> userdata) inside the quotation marks before running the script.
+USERID = ""
 #STEAM_FOLDER = "/mnt/d/Steam/userdata/" + USERID
 STEAM_FOLDER = steam_finder.steam_find(LOCAL_FOLDER) + "/userdata/" + USERID + "/"
 
