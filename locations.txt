@@ -1,4 +1,0 @@
-/mnt/c/Program Files (x86)/Common Files/Steam
-/mnt/c/ProgramData/Microsoft/Windows/Start Menu/Programs/Steam
-/mnt/c/Users/Antti/AppData/Local/Steam
-/mnt/d/Steam
