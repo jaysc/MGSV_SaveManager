@@ -13,7 +13,7 @@ LOCAL_FOLDER = PRE_LOCAL + DRIVE_LETTER  + "/MGSV\ saves/"
 MGSV1 = "287700"
 MGSV2 = "311340"
 # User ID, put your own here (from Steam directory -> userdata) inside the quotation marks before running the script.
-USERID = ""
+USERID = "61333905"
 #STEAM_FOLDER = "/mnt/d/Steam/userdata/" + USERID
 STEAM_FOLDER = steam_finder.steam_find(LOCAL_FOLDER) + "/userdata/" + USERID + "/"
 
@@ -51,14 +51,17 @@ elif (ARG.lower() == "n" or ARG.lower() == "new"):
     confirmation = confirmation.upper()
     print(confirmation)
     if (confirmation == "Y" or confirmation == "YES"):
-        os.system("cp -r " + STEAM_FOLDER + "/" + MGSV1 + " " + LOCAL_FOLDER + CURRENT_SAVE)
-        os.system("cp -r " + STEAM_FOLDER + "/" + MGSV2 + " " + LOCAL_FOLDER + CURRENT_SAVE)
+        os.system("cp -r " + STEAM_FOLDER + MGSV1 + "/* " + LOCAL_FOLDER + CURRENT_SAVE + "/" + MGSV1 + " 2> /dev/null")
+        os.system("cp -r " + STEAM_FOLDER + MGSV2 + "/* " + LOCAL_FOLDER + CURRENT_SAVE + "/" + MGSV2 + " 2> /dev/null")
         os.system("mkdir " + LOCAL_FOLDER + new_save)
-        os.system("rm -r " + STEAM_FOLDER + MGSV1)
-        os.system("rm -r " + STEAM_FOLDER + MGSV2)
+        os.system("mkdir " + LOCAL_FOLDER + new_save + "/" + MGSV1)
+        os.system("mkdir " + LOCAL_FOLDER + new_save + "/" + MGSV2)
+        os.system("rm -r " + STEAM_FOLDER + MGSV1 + "/*" + " 2> /dev/null")
+        os.system("rm -r " + STEAM_FOLDER + MGSV2 + "/*" + " 2> /dev/null")
         with open(LOCAL_FOLDER.replace("\ ", " ") + "current_save.txt", "w") as f_out:
             f_out.write(new_save)
         input("Empty save created, press Enter to continue...")
+        sys.exit()
     else:
         print("Invalid input, cancelling operation.")
         input("Press enter to continue...")
@@ -68,20 +71,41 @@ elif (ARG.lower() == "n" or ARG.lower() == "new"):
 try:
     with open(LOCAL_FOLDER.replace("\ ", " ") + "current_save.txt", "r") as f_in:
         CURRENT_SAVE = f_in.read()
-    print("Current save:", CURRENT_SAVE)
+    
+    if (CURRENT_SAVE not in SAVES):
+        print("error, current save no more. Switching to first save.")
+        CURRENT_SAVE = SAVES[0]
+        try:
+            os.system("mkdir " + LOCAL_FOLDER + "OLD")
+            os.system("mkdir " + LOCAL_FOLDER + "OLD/" + MGSV1)
+            os.system("mkdir " + LOCAL_FOLDER + "OLD/" + MGSV2)
+        except Exception as e:
+            pass
+        print("Backing up previous save to 'OLD' folder.")
+        os.system("cp -r " + STEAM_FOLDER + MGSV1 + "/*" + LOCAL_FOLDER + "OLD/" + MGSV1 + " 2> /dev/null")
+        os.system("cp -r " + STEAM_FOLDER + MGSV2 + "/*" + LOCAL_FOLDER + "OLD/" + MGSV2 + " 2> /dev/null")
+        os.system("cp -r " + LOCAL_FOLDER + CURRENT_SAVE + "/" + MGSV1 + "/* " + STEAM_FOLDER + MGSV1 + " 2> /dev/null")
+        os.system("cp -r " + LOCAL_FOLDER + CURRENT_SAVE + "/" + MGSV2 + "/* " + STEAM_FOLDER + MGSV2 + " 2> /dev/null")
+    
+    # List available saves
     i = 1
     for x in SAVES:
         print(str(i) + ": " + x)
         i += 1
+    
+    print("Current save:", CURRENT_SAVE)
     while(True):
         try:
             choice = int(input("Select save to use: ")) - 1
             break
         except Exception as e:
             print("Invalid selection, try again")
-    os.system("cp -r " + STEAM_FOLDER + MGSV1 + " " + LOCAL_FOLDER + CURRENT_SAVE)
-    os.system("cp -r " + STEAM_FOLDER + MGSV2 + " " + LOCAL_FOLDER + CURRENT_SAVE)
-    os.system("cp -r " + LOCAL_FOLDER + SAVES[choice] + "/*" + " " + STEAM_FOLDER)
+    os.system("cp -r " + STEAM_FOLDER + MGSV1 + "/* " + LOCAL_FOLDER + CURRENT_SAVE + "/" + MGSV1 + " 2> /dev/null")
+    os.system("cp -r " + STEAM_FOLDER + MGSV2 + "/* " + LOCAL_FOLDER + CURRENT_SAVE + "/" + MGSV2 + " 2> /dev/null")
+    os.system("rm -r " + STEAM_FOLDER + MGSV1 + "/*" + " 2> /dev/null")
+    os.system("rm -r " + STEAM_FOLDER + MGSV2 + "/*" + " 2> /dev/null")
+    os.system("cp -r " + LOCAL_FOLDER + SAVES[choice] + "/" + MGSV1 + "/* " + STEAM_FOLDER + MGSV1 + " 2> /dev/null")
+    os.system("cp -r " + LOCAL_FOLDER + SAVES[choice] + "/" + MGSV2 + "/* " + STEAM_FOLDER + MGSV2 + " 2> /dev/null")
     try:
         with open(LOCAL_FOLDER.replace("\ ", " ") + "current_save.txt", "w") as f_out:
             f_out.write(SAVES[choice])
@@ -95,6 +119,11 @@ except Exception as e:
     SAVE_CURRENT = input("Save file name:  ").upper() or "DEFAULT"
     with open(LOCAL_FOLDER.replace("\ ", " ") + "current_save.txt", "w") as x:
         x.write(SAVE_CURRENT)
-    os.system("mkdir " + LOCAL_FOLDER + "/" + SAVE_CURRENT)
-    os.system("cp -r " + STEAM_FOLDER + MGSV1 + " " + LOCAL_FOLDER + SAVE_CURRENT)
-    os.system("cp -r " + STEAM_FOLDER + MGSV2 + " " + LOCAL_FOLDER + SAVE_CURRENT)
+    os.system("mkdir " + LOCAL_FOLDER + SAVE_CURRENT)
+    os.system("mkdir " + LOCAL_FOLDER + SAVE_CURRENT + "/" + MGSV1)
+    os.system("mkdir " + LOCAL_FOLDER + SAVE_CURRENT + "/" + MGSV2)
+    try:
+        os.system("cp -r " + STEAM_FOLDER + MGSV1 + "/* " + LOCAL_FOLDER + SAVE_CURRENT + "/" + MGSV1 + " 2> /dev/null")
+        os.system("cp -r " + STEAM_FOLDER + MGSV2 + "/* " + LOCAL_FOLDER + SAVE_CURRENT + "/" + MGSV2 + " 2> /dev/null")
+    except Exception as e:
+        print("Nothing to copy, perhaps an empty save folders?")
