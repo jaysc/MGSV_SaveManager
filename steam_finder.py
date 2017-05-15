@@ -17,7 +17,7 @@ def steam_find():
 
         with open("locations.txt", "r") as x:
             LOCATIONS = x.readlines()
-
+        # Search for right Steam directory, which contains the userdata folder
         for x in LOCATIONS:
             DIR = x.replace(" ", "\ ").replace("(", "\(").replace(")", "\)")
             SEARCH = "ls " + DIR

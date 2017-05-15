@@ -19,6 +19,7 @@ LOCAL_FOLDER = PRE_LOCAL + DRIVE_LETTER  + "/MGSV\ saves/"
 SAVE1 = LOCAL_FOLDER + "Completed"
 SAVE2 = LOCAL_FOLDER + "NewSave"
 
+# Scan for save files
 os.system("cd " + LOCAL_FOLDER + " && find -maxdepth 1 -type d > saves.txt")
 with open(LOCAL_FOLDER.replace("\ ", " ") + "saves.txt", "r") as s:
     saves = s.readlines()
@@ -61,6 +62,7 @@ elif (ARG.lower() == "n" or ARG.lower() == "new"):
     else:
         print("Invalid input, cancelling operation.")
         sys.exit()
+
 # Main save switching functionality
 try:
     with open(LOCAL_FOLDER.replace("\ ", " ") + "current_save.txt", "r") as f_in:
@@ -95,45 +97,3 @@ except Exception as e:
     os.system("mkdir " + LOCAL_FOLDER + "/" + SAVE_CURRENT)
     os.system("cp -r " + STEAM_FOLDER + MGSV1 + " " + LOCAL_FOLDER + SAVE_CURRENT)
     os.system("cp -r " + STEAM_FOLDER + MGSV2 + " " + LOCAL_FOLDER + SAVE_CURRENT)
-    
-    # # Change to new save
-    # if(CURRENT_SAVE == "COMPLETED"):
-    #     print("Current save:", CURRENT_SAVE)
-    #     confirm = input("Switch to SAVE2?[Y/N] ")
-    #     if (confirm.upper() == "Y"):
-    #         # Copy Completed saves to local directory
-    #         os.system("cp -r " + STEAM_FOLDER + "/" + MGSV1 + " " + SAVE1)
-    #         os.system("cp -r " + STEAM_FOLDER + "/" + MGSV2 + " " + SAVE1)
-    #         # Copy new save to steam directory
-    #         os.system("cp -r " LOCAL_FOLDER + SAVES[choice] + "/*" + " " + STEAM_FOLDER)
-    #         try:
-    #             with open(LOCAL_FOLDER.replace("\ ", " ") + "current_save.txt", "w") as f_out:
-    #                 f_out.write(SAVES[choice])
-    #         except Exception as e:
-    #             print("Error:", e)
-    #     elif (confirm.upper() == "N"):
-    #         print("Cancelling save switching...")
-    #     else:
-    #         print("Error, cancelling script.")
-    # # Change to Completed save
-    # elif (CURRENT_SAVE == "SAVE2"):
-    #     print("Current save:", CURRENT_SAVE)
-    #     confirm = input("Switch to COMPLETED?[Y/N] ")
-    #     if (confirm.upper() == "Y"):
-    #         # Copy Completed saves to local directory
-    #         os.system("cp -r " + STEAM_FOLDER + "/" + MGSV1 + " " + SAVE2)
-    #         os.system("cp -r " + STEAM_FOLDER + "/" + MGSV2 + " " + SAVE2)
-    #         # Copy new save to steam directory
-    #         os.system("cp -r " + SAVE1 + "/*" + " " + STEAM_FOLDER)
-    #         try:
-    #             with open(LOCAL_FOLDER.replace("\ ", " ") + "current_save.txt", "w") as f_out:
-    #                 f_out.write("COMPLETED")
-    #         except Exception as e:
-    #             print("Error:", e)
-    #     elif (confirm.upper() == "N"):
-    #         print("Cancelling save switching...")
-    #     else:
-    #         print("Error, cancelling script.")
-    # else:
-    #     print("Error Reading current_save.txt file")
-
