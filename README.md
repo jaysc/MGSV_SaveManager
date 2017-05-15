@@ -4,10 +4,11 @@ Current version supports only running through Windows 10 Bash with Python 3.
 To enable Windows 10 Linux Bash, follow this installation guide: [Linux Subsystem on Windows 10](https://msdn.microsoft.com/en-us/commandline/wsl/install_guide)
 
 ## Current functionality
-* Switching between multiple save files
-* Create a new save file
+* Switching between multiple save files.
+* Create a new save file.
   * Currently only backs up the current save file, and then deletes it.
-* Current save file used
+* Current save file used.
+* Temporary and configure files saved in the same directory tree as the save files.
 
 ## Script Usage
 * This script doesn't really care where you run it from, as long as steam_finder.py and mgsv.py are in the same directory.
