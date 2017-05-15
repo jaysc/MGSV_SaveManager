@@ -5,17 +5,17 @@
 import sys, os
 import steam_finder
 
+# Local Save backup folders
+PRE_LOCAL = "/mnt/"
+DRIVE_LETTER = "c"
+LOCAL_FOLDER = PRE_LOCAL + DRIVE_LETTER  + "/MGSV\ saves/"
 # MGSV Folders, no need to change these
 MGSV1 = "287700"
 MGSV2 = "311340"
 # User ID, put your own here (from Steam directory -> userdata)
 USERID = "61333905"
 #STEAM_FOLDER = "/mnt/d/Steam/userdata/" + USERID
-STEAM_FOLDER = steam_finder.steam_find() + "/userdata/" + USERID + "/"
-# Local Save backup folders
-PRE_LOCAL = "/mnt/"
-DRIVE_LETTER = "c"
-LOCAL_FOLDER = PRE_LOCAL + DRIVE_LETTER  + "/MGSV\ saves/"
+STEAM_FOLDER = steam_finder.steam_find(LOCAL_FOLDER) + "/userdata/" + USERID + "/"
 
 # Scan for save files
 os.system("cd " + LOCAL_FOLDER + " && find -maxdepth 1 -type d > saves.txt")
@@ -36,7 +36,8 @@ else:
 # Check current save version
 if (ARG.lower() == "v" or ARG.lower() == "version"):
     with open(LOCAL_FOLDER.replace("\ ", " ") + "current_save.txt", "r") as f_in:
-        print(f_in.read())
+        print("Currently used save:", f_in.read())
+    input("Press enter to continue...")
     sys.exit()
 # Create a new save, backup previous save
 elif (ARG.lower() == "n" or ARG.lower() == "new"):
@@ -57,8 +58,10 @@ elif (ARG.lower() == "n" or ARG.lower() == "new"):
         os.system("rm -r " + STEAM_FOLDER + MGSV2)
         with open(LOCAL_FOLDER.replace("\ ", " ") + "current_save.txt", "w") as f_out:
             f_out.write(new_save)
+        input("Empty save created, press Enter to continue...")
     else:
         print("Invalid input, cancelling operation.")
+        input("Press enter to continue...")
         sys.exit()
 
 # Main save switching functionality
