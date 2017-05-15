@@ -31,5 +31,14 @@ def steam_find(LOCAL_DIR):
                     print("Steam install directory:", DIR)
                     with open(LOCAL_DIR.replace("\ ", " ") + "locations.txt", "w") as w:
                         w.write(DIR)
+                    print("Creating .bat shortcut file...")
+                    os.system("pwd > " + LOCAL_DIR + "pwd_tmp.txt")
+                    with open(LOCAL_DIR.replace("\ ", " ") + "pwd_tmp.txt", "r") as pwd:
+                        SCRIPT_DIR = pwd.readlines()[0].rstrip()
+                    print(SCRIPT_DIR)
+                    os.system("echo 'bash -c \"cd " + SCRIPT_DIR + " && python3 mgsv.py\"' > " + LOCAL_DIR + "save_switcher.bat")
+                    os.system("echo 'bash -c \"cd " + SCRIPT_DIR + " && python3 mgsv.py v\"' > " + LOCAL_DIR + "save_version.bat")
+                    os.system("echo 'bash -c \"cd " + SCRIPT_DIR + " && python3 mgsv.py n\"' > " + LOCAL_DIR + "new_save.bat")
+                    os.system("rm " + LOCAL_DIR + "pwd_tmp.txt")
                     os.system("rm " + LOCAL_DIR + "dir_temp.txt")
-                    return DIR
+                    return DIR.rsplit("\n")[0]

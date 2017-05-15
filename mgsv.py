@@ -79,8 +79,8 @@ try:
             break
         except Exception as e:
             print("Invalid selection, try again")
-    os.system("cp -r " + STEAM_FOLDER + MGSV1 + " " + CURRENT_SAVE)
-    os.system("cp -r " + STEAM_FOLDER + MGSV2 + " " + CURRENT_SAVE)
+    os.system("cp -r " + STEAM_FOLDER + MGSV1 + " " + LOCAL_FOLDER + CURRENT_SAVE)
+    os.system("cp -r " + STEAM_FOLDER + MGSV2 + " " + LOCAL_FOLDER + CURRENT_SAVE)
     os.system("cp -r " + LOCAL_FOLDER + SAVES[choice] + "/*" + " " + STEAM_FOLDER)
     try:
         with open(LOCAL_FOLDER.replace("\ ", " ") + "current_save.txt", "w") as f_out:

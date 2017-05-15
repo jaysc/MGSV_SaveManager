@@ -13,6 +13,7 @@ To enable Windows 10 Linux Bash, follow this installation guide: [Linux Subsyste
 ## Script Usage
 * This script doesn't really care where you run it from, as long as steam_finder.py and mgsv.py are in the same directory.
 * Save files saved on default to root of C: drive into "MGSV Saves" folder, if you want you can change the drive by editing mgsv.py file.
+* During first time running (or missing locations.txt file inside the local directory), the script will create .bat shortcuts, one for each of functionality. You can run these .bat shortcuts anywhere for easy use of this script. 
 * For save file switcing:
   * in **bash**: **python3 mgsv.py** (will be renaming this later)
     * When running first time, the script tries to scan for Steam directory, this might take a couple of moments so don't panic!
