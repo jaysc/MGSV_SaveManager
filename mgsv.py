@@ -16,8 +16,6 @@ STEAM_FOLDER = steam_finder.steam_find() + "/userdata/" + USERID + "/"
 PRE_LOCAL = "/mnt/"
 DRIVE_LETTER = "c"
 LOCAL_FOLDER = PRE_LOCAL + DRIVE_LETTER  + "/MGSV\ saves/"
-SAVE1 = LOCAL_FOLDER + "Completed"
-SAVE2 = LOCAL_FOLDER + "NewSave"
 
 # Scan for save files
 os.system("cd " + LOCAL_FOLDER + " && find -maxdepth 1 -type d > saves.txt")
