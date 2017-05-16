@@ -16,9 +16,11 @@ LOCAL_FOLDER = PRE_LOCAL + DRIVE_LETTER  + "/MGSV_saves/"
 MGSV1 = "287700"
 MGSV2 = "311340"
 # User ID, put your own here (from Steam directory -> userdata) inside the quotation marks before running the script.
-USERID = ""
+with open(sys.path[0] + "/userid.txt", "r") as u:
+    USERID = u.read()
 if (USERID == ""):
-    print("Steam userid not set, please put your own userid to the USERID varbiable inside the quotation marks.")
+    print("Steam userid not set. Please write the userid inside the 'userid.txt' file.")
+    input("Press enter to exit.")
     sys.exit()
 #STEAM_FOLDER = "/mnt/d/Steam/userdata/" + USERID
 STEAM_FOLDER = steam_finder.steam_find(LOCAL_FOLDER) + "/userdata/" + USERID + "/"
