@@ -14,6 +14,7 @@ To enable Windows 10 Linux Bash, follow this installation guide: [Linux Subsyste
 * This script doesn't really care where you run it from, as long as steam_finder.py and mgsv.py are in the same directory.
 * Save files saved on default to root of C: drive into "MGSV Saves" folder, if you want you can change the drive by editing mgsv.py file.
 * **Before** running the script, edit the **mgsv.py** file's "USERID" variable to match your own steam userid.
+* Also to enable creating of empty save file, disable the cloud sync in steam for **both The Phantom Pain AND Ground Zeroes** (if you have GZ installed). If GZ is installed, and only TPP cloud sync is disabled, steam will still download the old save from the cloud for some reason. Disabling cloud for both games prevent this "feature". 
 * During first time running (or missing locations.txt file inside the local directory), the script will create .bat shortcuts, one for each of functionality inside the save directory. You can run these .bat shortcuts anywhere for easy use of this script. 
 * For save file switcing:
   * in **bash**: **python3 mgsv.py** (will be renaming this later)
