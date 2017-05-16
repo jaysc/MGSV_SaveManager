@@ -11,7 +11,7 @@ import steam_finder
 # Local Save backup folders
 PRE_LOCAL = "/mnt/"
 DRIVE_LETTER = "c"
-LOCAL_FOLDER = PRE_LOCAL + DRIVE_LETTER  + "/MGSV\ saves/"
+LOCAL_FOLDER = PRE_LOCAL + DRIVE_LETTER  + "/MGSV_saves/"
 # MGSV Folders, no need to change these
 MGSV1 = "287700"
 MGSV2 = "311340"
@@ -24,25 +24,15 @@ if (USERID == ""):
 STEAM_FOLDER = steam_finder.steam_find(LOCAL_FOLDER) + "/userdata/" + USERID + "/"
 # MGSV: TPP Save files
 SAVE_FILES = [MGSV2 + "/remote/PERSONAL_DATA", MGSV2 + "/remote/TPP_CONFIG_DATA", MGSV2 + "/remote/TPP_GAME_DATA", MGSV1 + "/local/*"]
-SAVES = []
 
 
 # Scan for saves
 def save_scan():
-    os.system("cd " + LOCAL_FOLDER + " && find -maxdepth 1 -type d > saves.txt")
-    with open(LOCAL_FOLDER.replace("\ ", " ") + "saves.txt", "r") as s:
-        saves = s.readlines()
-    os.system("rm " + LOCAL_FOLDER + "saves.txt")
+    os.chdir(LOCAL_FOLDER)
     SVS = []
-    for x in saves:
-        s = x.replace("\n", "").replace(".", "").replace("/", "")
-        SVS.append(s)
-    SVS.pop(0)
+    for x in next(os.walk("."))[1]:
+        SVS.append(x)
     return SVS
-
-
-# Scan for save files
-SAVES = save_scan()
 
 
 # Main program
@@ -73,7 +63,7 @@ def check_args():
 
 # Check currently used save
 def check_version():
-    with open(LOCAL_FOLDER.replace("\ ", " ") + "current_save.txt", "r") as f_in:
+    with open(LOCAL_FOLDER + "current_save.txt", "r") as f_in:
         print("Currently used save:", f_in.read())
     input("Press enter to continue...")
     sys.exit()
@@ -89,7 +79,7 @@ def remove_saves():
 # Create new save
 def new_save():
     # Check what was previously used save file
-    with open(LOCAL_FOLDER.replace("\ ", " ") + "current_save.txt", "r") as f_in:
+    with open(LOCAL_FOLDER + "current_save.txt", "r") as f_in:
         CURRENT_SAVE = f_in.read()
     print("Creating a fresh save and backing up previous save.")
     new_save = input("Give a name for the new save: ") or "DEFAULT"
@@ -112,7 +102,7 @@ def new_save():
         os.system("mkdir " + LOCAL_FOLDER + new_save + "/" + MGSV2)
         steam_to_local(new_save)
         # Update current save used
-        with open(LOCAL_FOLDER.replace("\ ", " ") + "current_save.txt", "w") as f_out:
+        with open(LOCAL_FOLDER + "current_save.txt", "w") as f_out:
             f_out.write(new_save)
         print("Empty save created.")
         input("press Enter to continue...")
@@ -124,9 +114,9 @@ def new_save():
 
 
 # list available saves
-def saves_list():
+def saves_list(s):
     i = 1
-    for x in SAVES:
+    for x in s:
         print(str(i) + ": " + x)
         i += 1
 
@@ -145,7 +135,9 @@ def local_to_steam(CRNT_SV):
 
 # save switch function
 def save_switch():
-    with open(LOCAL_FOLDER.replace("\ ", " ") + "current_save.txt", "r") as f_in:
+    SAVES = []
+    SAVES = save_scan()
+    with open(LOCAL_FOLDER + "current_save.txt", "r") as f_in:
         CURRENT_SAVE = f_in.read()
     # Check if a save file still exists, if not, use the first save in the save list
     # Also create directories for backup possible previous save files from Steam directories
@@ -159,9 +151,8 @@ def save_switch():
         steam_to_local("old")
         remove_saves()
         local_to_steam(CURRENT_SAVE)
-    
-    saves_list()
-  
+    # List available saves
+    saves_list(SAVES)
     print("Current save:", CURRENT_SAVE)
     while(True):
         try:
@@ -177,7 +168,7 @@ def save_switch():
     local_to_steam(SAVES[choice])
     # Save currently used save file into a file
     try:
-        with open(LOCAL_FOLDER.replace("\ ", " ") + "current_save.txt", "w") as f_out:
+        with open(LOCAL_FOLDER + "current_save.txt", "w") as f_out:
             f_out.write(SAVES[choice])
         input("press enter to continue")
     except Exception as e:
@@ -189,9 +180,9 @@ def save_switch():
 def first_run(e):
     print("Error:", e)
     print("Probably first time running. Adding your current save file to saves list.")
-    os.system("mkdir " + LOCAL_FOLDER)
+    #os.system("mkdir " + LOCAL_FOLDER)
     SAVE_CURRENT = input("Name your save file:  ").upper() or "DEFAULT"
-    with open(LOCAL_FOLDER.replace("\ ", " ") + "current_save.txt", "w") as x:
+    with open(LOCAL_FOLDER + "current_save.txt", "w") as x:
         x.write(SAVE_CURRENT)
     os.system("mkdir " + LOCAL_FOLDER + SAVE_CURRENT)
     os.system("mkdir " + LOCAL_FOLDER + SAVE_CURRENT + "/" + MGSV1)
