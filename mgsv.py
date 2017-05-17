@@ -9,7 +9,9 @@
 
 import sys, os
 import steam_finder
+import save_scanner
 
+# Script directory for creating the .bat shortcuts
 SCRIPT_DIR = os.path.dirname(os.path.realpath("mgsv.py"))
 # Local Save backup folders
 DRIVE_LETTER = "C"
@@ -21,59 +23,15 @@ except Exception as e:
 # MGSV Folders, no need to change these
 MGSV1 = "287700"
 MGSV2 = "311340"
-
-#STEAM_FOLDER = "/mnt/d/Steam/userdata/" + USERID
-#STEAM_FOLDER = steam_finder.steam_find(LOCAL_FOLDER) + "\\userdata\\" + USERID + "\\"
-# For time being, user needs to define manually the Steam folder here, format DRIVE_LETTER:\\Path\\To\\Steam e.g. D:\\Steam or C:\\Program Files\Steam
-# with open(sys.path[0] + "\steam_path.txt", "r") as s:
-#     STEAM_PATH = s.readlines()[0].rsplit()[0]
+# Steam path
 STEAM_PATH = steam_finder.steam_find(LOCAL_FOLDER)
 if (STEAM_PATH == ""):
     print("Steam path not set, please set Steam path to steam_path.txt. Format example 'D:\\Steam'")
     input("Press enter to exit.")
     sys.exit()
 
-
 # User scan
-USERIDS = []
-USERNAMES = {}
-USERID = ""
-USERNAME = ""
-if (USERID == ""):
-    os.chdir(STEAM_PATH + "\\userdata")
-    for x in next(os.walk("."))[1]:
-        USERIDS.append(x)
-    for user in USERIDS:
-        if (USERID != ""):
-            break
-        with open(STEAM_PATH + "\\userdata\\" + user + "\\config\\localconfig.vdf", "r") as reader:
-            lines = reader.readlines()
-        for line in lines:
-            if ("PersonaName" in line):
-                UNAME = line.strip().rsplit("		")[1].rsplit("\"")[1]
-                USERNAMES[UNAME] = user
-                break
-
-os.system("cls")
-# User selection
-u  = 1
-user_temp_list = []
-for USER in USERNAMES:
-    print(str(u) + ": Username: " + USER + ", UserID: " + USERNAMES[USER])
-    u += 1
-    user_temp_list.append(USERNAMES[USER])
-while(True):
-    try:
-        selection = int(input("Select your username (number on the list): "))
-    except Exception as e:
-        print("Invalid selection, try again.")
-        continue
-    if (selection <= 0 or selection > len(USERNAMES)):
-        print("Invalid selection, try again.")
-    else:
-        selection -= 1
-        USERID = user_temp_list[selection]
-        break
+USERID = save_scanner.user_selection(save_scanner.save_scan(STEAM_PATH))
 os.system("cls")
 
 # Make sure the userid is not empty
