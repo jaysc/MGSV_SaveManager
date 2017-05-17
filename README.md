@@ -1,13 +1,24 @@
 # MGSV_Save_Switcher
 **The functionality with this version is still quite in the early stages. There is some more bugs to be fixed compared to the bash version, but this should still work if you don't try anything too fancy. Please backup your saves before using this.**  
-A python 3 script to easily switch between multiple Metal Gear Solid V: The Phantom Pain save files.  
-This version will allow running the script without the Linux subsystem, using only Python 3 and Windows command prompt.  
+A Python 3 script to easily switch between multiple Metal Gear Solid V: The Phantom Pain save files and create new, empty saves.  
+This script at this development stage requires [Python 3](https://www.python.org/) to be installed on your computer.  
+If you experience bugs and errors, please create an issue with as accurate description of the issue as possible so I can try replicate and fix it.  
 ## Current functionality
 * Switching between multiple save files.
 * Create a new save file.
 * Current save file used.
+* Automatically detects Steam users in the Steam directory
+* Automatically locates Steam directory
+  * The functionality of this might vary depending if you have some exotic setup. Should work in most cases, where Steam have been installed normally (either to default location or to an other drive/directory).
+## Planned features
+* Graphical user interface
+* Executable without requiring user installed Python 3 (currently testing and trying to implement it by release version 1.0)
+* Save deletion
 ## How to use
 * For time being, Python 3 is required to be installed. Install it from [Python website](https://www.python.org/)
+* Before running this script, please mind the following prerequisites
+  * In order for this script to create new, empty files, disable Cloud Sync in Steam game properties for MGSV: The Phantom Pain and (if installed, MGSV: Ground Zeroes).
+  * If you want to backup your save before running this script, head to Steam directory > userdata > your-user-id > **287700** and **311340** are the folders including MGSV files. Copy these somewhere safe.
 * Run the mgsv.py file
   * If Python is correctly installed, you should be able to just double click the mgsv.py file to run it
   * If this doesn't work, you can try to launch it from command prompt
