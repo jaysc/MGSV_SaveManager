@@ -10,6 +10,7 @@
 import sys, os
 import steam_finder
 
+SCRIPT_DIR = os.path.dirname(os.path.realpath("mgsv.py"))
 # Local Save backup folders
 DRIVE_LETTER = "C"
 LOCAL_FOLDER = DRIVE_LETTER + ":\\" + "MGSV_saves\\"
@@ -243,9 +244,6 @@ def first_run(e):
     os.system("mkdir " + LOCAL_FOLDER + SAVE_CURRENT + "\\" + MGSV1)
     os.system("mkdir " + LOCAL_FOLDER + SAVE_CURRENT + "\\" + MGSV2)
     steam_to_local(SAVE_CURRENT)
-    os.system("cd > " + LOCAL_FOLDER + "script_path.txt")
-    with open(LOCAL_FOLDER + "script_path.txt", "r") as r:
-        SCRIPT_DIR = r.readlines()[0].rstrip()
     # Creating startup scripts.
     with open(LOCAL_FOLDER + "MGSV_SaveSwitcher.bat", "w") as f:
         f.write(SCRIPT_DIR[0:2] + " && cd " + SCRIPT_DIR + " && python mgsv.py")
