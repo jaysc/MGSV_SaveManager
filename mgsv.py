@@ -13,6 +13,10 @@ import steam_finder
 # Local Save backup folders
 DRIVE_LETTER = "C"
 LOCAL_FOLDER = DRIVE_LETTER + ":\\" + "MGSV_saves\\"
+try:
+    os.system("mkdir " + LOCAL_FOLDER + " 2> nul")
+except Exception as e:
+    pass
 # MGSV Folders, no need to change these
 MGSV1 = "287700"
 MGSV2 = "311340"
@@ -231,9 +235,7 @@ def save_switch():
 
 # First run, create a local save of your currently used MGSV: TPP save
 def first_run(e):
-    print("Error:", e)
     print("Probably first time running. Adding your current save file to saves list.")
-    os.system("mkdir " + LOCAL_FOLDER + " 2> nul")
     SAVE_CURRENT = input("Name your save file:  ").upper() or "DEFAULT"
     with open(LOCAL_FOLDER + "current_save.txt", "w") as x:
         x.write(SAVE_CURRENT)

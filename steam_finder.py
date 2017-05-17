@@ -7,13 +7,11 @@ import os
 def steam_find(LOCAL_DIR):
     # See if the path has been found already
     try:
-        print("testing")
         with open(LOCAL_DIR + "steam_path.txt", "r") as i:
             DIR_TEMP = i.read().replace("\\Steam.exe", "").rstrip()
         return DIR_TEMP
     # Path not found yet, probably first run
     except Exception as e:
-        print(e)
         # List all usable drives, remove first line containing header
         os.system("wmic LOGICALDISK LIST BRIEF > " + LOCAL_DIR + "drvs.txt")
         with open(LOCAL_DIR + "drvs.txt", "r") as reader:
