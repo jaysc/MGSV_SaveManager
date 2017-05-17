@@ -6,8 +6,9 @@ If you experience bugs and errors, please create an issue with as accurate descr
 ![Metal Gear Solid V: The Phantom Pain](http://static.gosunoob.com/img/1/2015/08/mgsv-the-phantom-pain-tips.jpg)
 ## Current functionality
 * Switching between multiple save files.
-* Create a new save file.
-* Current save file used.
+* Create a new save file
+* Current save file used
+* Delete a save file
 * Automatically detects Steam users in the Steam directory
 * Automatically locates Steam directory
   * The functionality of this might vary depending if you have some exotic setup. Should work in most cases, where Steam have been installed normally (either to default location or to an other drive/directory).
