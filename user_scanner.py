@@ -3,8 +3,8 @@
 
 import os, sys
 
-# Scan for save files
-def save_scan(STEAM_PATH):
+# Scan for users
+def user_scan(STEAM_PATH):
     # Variables to be used
     USERIDS = []
     USERNAMES = {}

@@ -9,7 +9,7 @@
 
 import sys, os
 import steam_finder
-import save_scanner
+import user_scanner
 
 # Script directory for creating the .bat shortcuts
 SCRIPT_DIR = os.path.dirname(os.path.realpath("mgsv.py"))
@@ -31,7 +31,7 @@ if (STEAM_PATH == ""):
     sys.exit()
 
 # User scan
-USERID = save_scanner.user_selection(save_scanner.save_scan(STEAM_PATH))
+USERID = user_scanner.user_selection(user_scanner.user_scan(STEAM_PATH))
 os.system("cls")
 
 # Make sure the userid is not empty
@@ -49,9 +49,46 @@ def save_scan():
     os.chdir(LOCAL_FOLDER)
     SVS = []
     for x in next(os.walk("."))[1]:
-        SVS.append(x)
+        if (x != "OLD"):
+            SVS.append(x)
     return SVS
 
+
+def save_delete():
+    SAVES = save_scan()
+    saves_list(SAVES)
+    print("0 : Cancel")
+    while(True):
+        try:
+            save_del = int(input("Save to delete: "))
+            if (save_del == 0):
+                print("Cancelling. No changes made.")
+                input("Press enter to exit")
+                sys.exit()
+            elif (save_del - 1 < 0 or save_del - 1 > len(SAVES)):
+                print("Invalid selection, please try again.")
+            else:
+                while (True):
+                    print("Selected save " + SAVES[save_del - 1])
+                    sure = input("Are you sure?[y/N] : ").upper() or "N"
+                    if (sure == ("Y" or "YES")):
+                        os.system("cd " + LOCAL_FOLDER)
+                        os.system("rmdir /S /Q " + SAVES[save_del - 1])
+                        print("Save " + SAVES[save_del - 1] + " deleted.")
+                        input("Press enter to exit")
+                        sys.exit()
+                    elif (sure == ("N" or "NO")):
+                        print("Not deleting, cancelling operation without making changes.")
+                        input("Press enter to exit")
+                        sys.exit()
+                    else:
+                        print("Uh, didn't quite catch that, try again.")
+                        SAVES = save_scan()
+                        saves_list(SAVES)
+                        print("0 : Cancel")
+        except Exception as e:
+            print(e)
+            print("Invalid selection, please try again.")
 
 # Main program
 def main():
@@ -63,6 +100,8 @@ def main():
     # If new save
     elif (ARG.lower() == "n" or ARG.lower() == "new"):
         new_save()
+    elif (ARG.lower() == "d" or ARG.lower() == "delete"):
+        save_delete()
     try:
         save_switch()
     except Exception as e:
@@ -133,6 +172,7 @@ def new_save():
 # list available saves
 def saves_list(s):
     i = 1
+    print("Available saves")
     for x in s:
         print(str(i) + ": " + x)
         i += 1
@@ -209,6 +249,8 @@ def first_run(e):
         f.write(SCRIPT_DIR[0:2] + " && cd " + SCRIPT_DIR + " && python mgsv.py n")
     with open(LOCAL_FOLDER + "MGSV_SaveSwitcher_CurrentSave.bat", "w") as f:
         f.write(SCRIPT_DIR[0:2] + " && cd " + SCRIPT_DIR + " && python mgsv.py v")
+    with open(LOCAL_FOLDER + "MGSV_SaveSwitcher_DeleteSave.bat", "w") as f:
+        f.write(SCRIPT_DIR[0:2] + " && cd " + SCRIPT_DIR + " && python mgsv.py d")
     print("Shortcut scripts created to " + LOCAL_FOLDER + ". These scripts require Python to be installed.")
     sys.exit()
 
