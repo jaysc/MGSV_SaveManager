@@ -5,43 +5,43 @@ import os
 
 # Locate Steam directory
 def steam_find(LOCAL_DIR):
-    # Check if locations directory already found and saved
+    # See if the path has been found already
     try:
-        with open(LOCAL_DIR + "locations.txt", "r") as i:
-            DIR_TEMP = i.readlines()
-        return DIR_TEMP[0].rstrip()
-    # Search for Steam directory
+        print("testing")
+        with open(LOCAL_DIR + "steam_path.txt", "r") as i:
+            DIR_TEMP = i.read().replace("\\Steam.exe", "").rstrip()
+        return DIR_TEMP
+    # Path not found yet, probably first run
     except Exception as e:
-        print("First time running, locating steam directory. This might take a few moments.")
-        os.system("mkdir " + LOCAL_DIR)
-        os.system("find /mnt -type d -name Steam 2> /dev/null > " + LOCAL_DIR + "locations.txt")
+        print(e)
+        # List all usable drives, remove first line containing header
+        os.system("wmic LOGICALDISK LIST BRIEF > " + LOCAL_DIR + "drvs.txt")
+        with open(LOCAL_DIR + "drvs.txt", "r") as reader:
+            DRIVES = reader.readlines()
+        DRIVES.pop(0)
+        # Create file where to save drive letters
+        with open(LOCAL_DIR + "drives.txt", "w") as writer:
+            writer.write("")
 
-        with open(LOCAL_DIR + "locations.txt", "r") as x:
-            LOCATIONS = x.readlines()
-        # Search for right Steam directory, which contains the userdata folder
-        for x in LOCATIONS:
-            DIR = x.replace(" ", "\ ").replace("(", "\(").replace(")", "\)")
-            SEARCH = "ls " + DIR
-            os.system(SEARCH.rstrip() + " > " + LOCAL_DIR + "dir_temp.txt")
-            with open(LOCAL_DIR + "dir_temp.txt", "r") as k:
-                DATA  = k.readlines()
-            for i in DATA:
-                if(i.rstrip() == "userdata"):
-                    print("Steam install directory:", DIR)
-                    with open(LOCAL_DIR + "locations.txt", "w") as w:
-                        w.write(DIR)
-                    print("Creating .bat shortcut file...")
-                    os.system("pwd > " + LOCAL_DIR + "pwd_tmp.txt")
-                    with open(LOCAL_DIR + "pwd_tmp.txt", "r") as pwd:
-                        SCRIPT_DIR = pwd.readlines()[0].rstrip()
-                    print(SCRIPT_DIR)
-                    # Creating startup scripts.
-                    with open(LOCAL_DIR + "MGSV_SaveSwitcher.bat", "w") as f:
-                        f.write("bash -c \"cd " + SCRIPT_DIR + " && python3 mgsv.py\"")
-                    with open(LOCAL_DIR + "MGSV_SaveSwitcher_NewSave.bat", "w") as f:
-                        f.write("bash -c \"cd " + SCRIPT_DIR + " && python3 mgsv.py n\"")
-                    with open(LOCAL_DIR + "MGSV_SaveSwitcher_CurrentSave.bat", "w") as f:
-                        f.write("bash -c \"cd " + SCRIPT_DIR + " && python3 mgsv.py v\"")
-                    os.system("rm " + LOCAL_DIR + "pwd_tmp.txt")
-                    os.system("rm " + LOCAL_DIR + "dir_temp.txt")
-                    return DIR.rsplit("\n")[0]
+        for line in DRIVES:
+            with open(LOCAL_DIR + "drives.txt", "a") as writer:
+                writer.write(line.strip().replace(" ", "").replace("\x00", "")[0:2])
+        # Remove : and last item which is empty.   
+        with open(LOCAL_DIR + "drives.txt", "r") as reader:
+            d = reader.read().rsplit(":")
+        d.pop()
+        STEAM_PATH = ""
+        # Start searching the Steam directory. Iterate through the drives searching for Steam.exe
+        for i in d:
+            os.system(i + ": && dir /s /b Steam.exe > " + LOCAL_DIR + "steam_path.txt")
+            with open(LOCAL_DIR + "steam_path.txt", "r") as r:
+                k = r.read()
+                if ("Steam.exe" in k):
+                    STEAM_PATH = k.replace("\\Steam.exe", "").rstrip()
+                    print("Steam found in " + STEAM_PATH)
+                    break
+
+        # Remove files used in the previous steps
+        os.system("del /Q " + LOCAL_DIR + "drvs.txt 2> nul")
+        os.system("del /Q " + LOCAL_DIR + "drives.txt 2> nul")
+        return STEAM_PATH

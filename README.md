@@ -1,31 +1,25 @@
 # MGSV_Save_Switcher
-A python 3 script to easily switch between multiple Metal Gear Solid V: The Phantom Pain save files.
-Current version supports only running through Windows 10 Bash with Python 3.
-To enable Windows 10 Linux Bash, follow this installation guide: [Linux Subsystem on Windows 10](https://msdn.microsoft.com/en-us/commandline/wsl/install_guide)
-
+**The functionality with this version is still quite in the early stages. There is some more bugs to be fixed compared to the bash version, but this should still work if you don't try anything too fancy. Please backup your saves before using this.**  
+A python 3 script to easily switch between multiple Metal Gear Solid V: The Phantom Pain save files.  
+This version will allow running the script without the Linux subsystem, using only Python 3 and Windows command prompt.  
 ## Current functionality
 * Switching between multiple save files.
 * Create a new save file.
-  * Currently only backs up the current save file, and then deletes it.
 * Current save file used.
-* Temporary and configure files saved in the same directory tree as the save files.
-
-## Script Usage
-* This script doesn't really care where you run it from, as long as steam_finder.py and mgsv.py are in the same directory.
-* Save files saved on default to root of C: drive into "MGSV Saves" folder, if you want you can change the drive by editing mgsv.py file.
-* **Before** running the script, edit the **mgsv.py** file's "USERID" variable to match your own steam userid.
-* Also to enable creating of empty save file, disable the cloud sync in steam for **both The Phantom Pain AND Ground Zeroes** (if you have GZ installed). If GZ is installed, and only TPP cloud sync is disabled, steam will still download the old save from the cloud for some reason. Disabling cloud for both games prevent this "feature". 
-* During first time running (or missing locations.txt file inside the local directory), the script will create .bat shortcuts, one for each of functionality inside the save directory. You can run these .bat shortcuts anywhere for easy use of this script. 
-* For save file switcing:
-  * in **bash**: **python3 mgsv.py** (will be renaming this later)
-    * When running first time, the script tries to scan for Steam directory, this might take a couple of moments so don't panic!
-    * Select save file to use by writing the **number** of save and press **Enter**
-    * You are now running the selected save file! Test it by launching the game!
-* To check current save file in use
-  * in **bash**: **python3 mgsv.py v** or **python3 mgsv.py version**
-* To create a new save
-  * in **bash**: **python3 mgsv.py n** or **python3 mgsv.py new**
-    * Choose a save name and press enter
-    * Confirm by typing either Y or N (default)
-    * Currently used save is backed up and then deleted.
-      * This method currently also removes all the settings, so you probably want to configure those after getting to the main menu.
+## How to use
+* For time being, Python 3 is required to be installed. Install it from [Python website](https://www.python.org/)
+* Run the mgsv.py file
+  * If Python is correctly installed, you should be able to just double click the mgsv.py file to run it
+  * If this doesn't work, you can try to launch it from command prompt
+    * Press **WinKey+R**
+    * Type **cmd** and press **Enter**
+    * navigate to the MGSV Save Switcher folder with **cd** command. Use **help cd** if you need help with the syntax.
+    * In the script folder, type **python mgsv.py** to run the script.
+  * Select your username from the list by typing the **number** left to the username and press **Enter**
+  * During first run:
+    * Script will ask you to name the **currently** used MGSV: TPP save.
+  * Afterwards the similarly to the user selection, use the number next to the Save name to switch between saves the script has found.
+  * To create a new, empty save, use .bat shortcut **MGSV\_SaveSwitcher\_NewSave.bat** in the **MGSV_saves** folder (default location **C:\\MGSV\_saves**)
+  * To check currently used save, use .bat shortcut **MGSV\_SaveSwitcher\_CurrentSave.bat** in the **MGSV_saves** folder (default location **C:\\MGSV\_saves**)
+  * There is also a script for normal script use, **MGSV\_SaveSwitcher.bat** in the **MGSV_saves** folder (default location **C:\\MGSV\_saves**)
+  * These .bat shortcuts can be used from outside the save folder as well, if for example you want to have them in your Desktop or some other, easily accessible directory.
