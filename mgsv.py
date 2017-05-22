@@ -1,7 +1,5 @@
 # Antti Alasalmi 2017
-# Alpha 0.2
 # MGSV Save Switcher command line branch
-# Run script without the linux subsystem, using Windows command line tools.
 # Easily switch between MGSV: TPP save files
 # Please disable both The Phantom Pain and Ground Zeroes (if installed) cloud sync before trying to create empty saves
 # Otherwise Steam will download the save from cloud, thus preventing an empty save creation.
