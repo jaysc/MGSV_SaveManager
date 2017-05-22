@@ -5,11 +5,30 @@
 # Easily switch between MGSV: TPP save files
 # Please disable both The Phantom Pain and Ground Zeroes (if installed) cloud sync before trying to create empty saves
 # Otherwise Steam will download the save from cloud, thus preventing an empty save creation.
-# Also remember to add your own USERID and steam path to STEAM_PATH variable, check instructions above variable for formatting.
 
 import sys, os
 import steam_finder
 import user_scanner
+
+# Check if arguments have been used
+def check_args():
+    if (len(sys.argv) > 1):
+        ARG = sys.argv[1]
+    else:
+        ARG = ""
+    return ARG
+
+# About page
+def about():
+    os.system("cls")
+    print("\nMetal Gear Solid V: The Phantom Pain Save Switcher\nAntti Alasalmi 2017\nGithub page https://github.com/thatsafy/MGSV_Save_Switcher")
+    input("\nPress enter to continue")
+
+# Check arguments, if about page wanted, run it right away and exit.
+ARGUMENT = check_args()
+if (ARGUMENT.lower() == "a" or ARGUMENT.lower() == "about"):
+    about()
+    sys.exit()
 
 # Script directory for creating the .bat shortcuts
 SCRIPT_DIR = os.path.dirname(os.path.realpath("mgsv.py"))
@@ -26,17 +45,19 @@ MGSV2 = "311340"
 # Steam path
 STEAM_PATH = steam_finder.steam_find(LOCAL_FOLDER)
 if (STEAM_PATH == ""):
-    print("Steam path not set, please set Steam path to steam_path.txt. Format example 'D:\\Steam'")
+    print("Error, Steam path not set.\nTry running again, or make an issue in the GitHub page https://github.com/thatsafy/MGSV_Save_Switcher")
     input("Press enter to exit.")
     sys.exit()
 
 # User scan
-USERID = user_scanner.user_selection(user_scanner.user_scan(STEAM_PATH))
+USER_NAMES = user_scanner.user_scan(STEAM_PATH)
+USERNAME = user_scanner.user_name(USER_NAMES)
+USERID = USER_NAMES[USERNAME]
 os.system("cls")
 
 # Make sure the userid is not empty
 if (USERID == ""):
-    print("Steam userid not set. Please write the userid inside the 'userid.txt' file.")
+    print("UserID not set.\nTry running again, or make an issue in the GitHub page https://github.com/thatsafy/MGSV_Save_Switcher")
     input("Press enter to exit.")
     sys.exit()
 STEAM_FOLDER = STEAM_PATH + "\\userdata\\" + USERID + "\\"
@@ -46,14 +67,14 @@ SAVE_FILES = [MGSV2 + "\\remote\\PERSONAL_DATA", MGSV2 + "\\remote\\TPP_CONFIG_D
 
 # Scan for saves
 def save_scan():
-    os.chdir(LOCAL_FOLDER)
+    os.chdir(LOCAL_FOLDER + USERNAME)
     SVS = []
     for x in next(os.walk("."))[1]:
         if (x != "OLD"):
             SVS.append(x)
     return SVS
 
-
+# Delete save
 def save_delete():
     SAVES = save_scan()
     saves_list(SAVES)
@@ -72,7 +93,7 @@ def save_delete():
                     print("Selected save " + SAVES[save_del - 1])
                     sure = input("Are you sure?[y/N] : ").upper() or "N"
                     if (sure == ("Y" or "YES")):
-                        os.system("cd " + LOCAL_FOLDER)
+                        os.system("cd " + LOCAL_FOLDER + USERNAME)
                         os.system("rmdir /S /Q " + SAVES[save_del - 1])
                         print("Save " + SAVES[save_del - 1] + " deleted.")
                         input("Press enter to exit")
@@ -92,37 +113,55 @@ def save_delete():
 
 # Main program
 def main():
-    # Check if arguments used
-    ARG = check_args()
-    # If version
-    if (ARG.lower() == "v" or ARG.lower() == "version"):
-        check_version()
-    # If new save
-    elif (ARG.lower() == "n" or ARG.lower() == "new"):
-        new_save()
-    elif (ARG.lower() == "d" or ARG.lower() == "delete"):
-        save_delete()
     try:
-        save_switch()
+        # Check if arguments used
+        ARG = ARGUMENT
+        # If version
+        if (ARG.lower() == "v" or ARG.lower() == "version"):
+            print("Current save for user " + USERNAME + ": " + get_version())
+        # If new save
+        elif (ARG.lower() == "n" or ARG.lower() == "new"):
+            new_save()
+        elif (ARG.lower() == "d" or ARG.lower() == "delete"):
+            save_delete()
+        # If no valid arguments, go to main menu
+        else:
+            menu_items = ["Save Switch", "New Save", "Delete Save", "About", "Exit"]
+            while (True):
+                os.system("cls")
+                print("Main Menu")
+                print("Currently used save: " + get_version())
+                i = 1
+                for item in menu_items:
+                    print(str(i) + ": " + item)
+                    i += 1
+                try:
+                    selection = int(input("Selection: "))
+                    if (selection == 1):
+                        save_switch()
+                    elif (selection == 2):
+                        new_save()
+                    elif (selection == 3):
+                        save_delete()
+                    elif (selection == 4):
+                        about()
+                    elif (selection == 5):
+                        print("Exiting...")
+                        sys.exit()
+                except Exception as e:
+                    print("Invalid selection, try again.")
     except Exception as e:
         first_run(e)
-
-
-# Check if arguments have been used
-def check_args():
-    if (len(sys.argv) > 1):
-        ARG = sys.argv[1]
-    else:
-        ARG = ""
-    return ARG
-
-
-# Check currently used save
-def check_version():
-    with open(LOCAL_FOLDER + "current_save.txt", "r") as f_in:
-        print("Currently used save:", f_in.read())
+    
     input("Press enter to continue...")
     sys.exit()
+
+# Check currently used save
+def get_version():
+    with open(LOCAL_FOLDER + USERNAME + "\\current_save.txt", "r") as f_in:
+        #print("Currently used save:", f_in.read())
+        CUR_SAVE = f_in.read()
+    return CUR_SAVE
 
 
 # Remove MGSV: TPP save files in the userdata
@@ -135,8 +174,7 @@ def remove_saves():
 # Create new save
 def new_save():
     # Check what was previously used save file
-    with open(LOCAL_FOLDER + "current_save.txt", "r") as f_in:
-        CURRENT_SAVE = f_in.read()
+    CURRENT_SAVE = get_version()
     print("Creating a fresh save and backing up previous save.")
     new_save = input("Give a name for the new save: ") or "DEFAULT"
     new_save = new_save.upper()
@@ -153,26 +191,22 @@ def new_save():
         # Remove save files for Phantom Pain
         remove_saves()
         # Create new save directory, copy empty MGSV save there
-        os.system("mkdir " + LOCAL_FOLDER + new_save)
-        os.system("mkdir " + LOCAL_FOLDER + new_save + "\\" + MGSV1)
-        os.system("mkdir " + LOCAL_FOLDER + new_save + "\\" + MGSV2)
+        os.system("mkdir " + LOCAL_FOLDER + USERNAME + "\\" + new_save)
+        os.system("mkdir " + LOCAL_FOLDER + USERNAME + "\\" + new_save + "\\" + MGSV1)
+        os.system("mkdir " + LOCAL_FOLDER + USERNAME + "\\" + new_save + "\\" + MGSV2)
         steam_to_local(new_save)
         # Update current save used
-        with open(LOCAL_FOLDER + "current_save.txt", "w") as f_out:
+        with open(LOCAL_FOLDER + USERNAME + "\\current_save.txt", "w") as f_out:
             f_out.write(new_save)
         print("Empty save created.")
-        input("press Enter to continue...")
-        sys.exit()
     else:
         print("Invalid input, cancelling operation.")
-        input("Press enter to continue...")
-        sys.exit()
 
 
 # list available saves
 def saves_list(s):
     i = 1
-    print("Available saves")
+    print("Available saves for user " + USERNAME)
     for x in s:
         print(str(i) + ": " + x)
         i += 1
@@ -180,30 +214,30 @@ def saves_list(s):
 
 # Copy save from steam to local
 def steam_to_local(CRNT):
-    os.system("xcopy /E /Y " + STEAM_FOLDER + MGSV1 + " " + LOCAL_FOLDER + CRNT + "\\" + MGSV1 + " 2> nul")
-    os.system("xcopy /E /Y " + STEAM_FOLDER + MGSV2 + " " + LOCAL_FOLDER + CRNT + "\\" + MGSV2 + " 2> nul")
+    os.system("xcopy /E /Y " + STEAM_FOLDER + MGSV1 + " " + LOCAL_FOLDER + USERNAME + "\\" + CRNT + "\\" + MGSV1 + " 2> nul")
+    os.system("xcopy /E /Y " + STEAM_FOLDER + MGSV2 + " " + LOCAL_FOLDER + USERNAME + "\\" + CRNT + "\\" + MGSV2 + " 2> nul")
 
 
 # Copy save from local to steam
 def local_to_steam(CRNT_SV):
-    os.system("xcopy /E /Y " + LOCAL_FOLDER + CRNT_SV + "\\" + MGSV1 + " " + STEAM_FOLDER + MGSV1 + " 2> nul")
-    os.system("xcopy /E /Y " + LOCAL_FOLDER + CRNT_SV + "\\" + MGSV2 + " " + STEAM_FOLDER + MGSV2 + " 2> nul")
+    os.system("xcopy /E /Y " + LOCAL_FOLDER + USERNAME + "\\" + CRNT_SV + "\\" + MGSV1 + " " + STEAM_FOLDER + MGSV1 + " 2> nul")
+    os.system("xcopy /E /Y " + LOCAL_FOLDER + USERNAME + "\\" + CRNT_SV + "\\" + MGSV2 + " " + STEAM_FOLDER + MGSV2 + " 2> nul")
 
 
 # save switch function
 def save_switch():
+    os.system("cls")
     SAVES = []
     SAVES = save_scan()
-    with open(LOCAL_FOLDER + "current_save.txt", "r") as f_in:
-        CURRENT_SAVE = f_in.read()
+    CURRENT_SAVE = get_version()
     # Check if a save file still exists, if not, use the first save in the save list
     # Also create directories for backup possible previous save files from Steam directories
     if (CURRENT_SAVE not in SAVES):
         print("error, current save no more. Switching to first save.")
         CURRENT_SAVE = SAVES[0]  
-        os.system("mkdir " + LOCAL_FOLDER + "OLD" + " 2> nul")
-        os.system("mkdir " + LOCAL_FOLDER + "OLD\\" + MGSV1 + " 2> nul")
-        os.system("mkdir " + LOCAL_FOLDER + "OLD\\" + MGSV2 + " 2> nul")   
+        os.system("mkdir " + LOCAL_FOLDER + USERNAME + "\\OLD" + " 2> nul")
+        os.system("mkdir " + LOCAL_FOLDER + USERNAME + "\\OLD\\" + MGSV1 + " 2> nul")
+        os.system("mkdir " + LOCAL_FOLDER + USERNAME + "\\OLD\\" + MGSV2 + " 2> nul")   
         print("Backing up previous save to 'OLD' folder.")
         steam_to_local("old")
         remove_saves()
@@ -225,22 +259,20 @@ def save_switch():
     local_to_steam(SAVES[choice])
     # Save currently used save file into a file
     try:
-        with open(LOCAL_FOLDER + "current_save.txt", "w") as f_out:
+        with open(LOCAL_FOLDER + USERNAME + "\\current_save.txt", "w") as f_out:
             f_out.write(SAVES[choice])
-        input("press enter to continue")
     except Exception as e:
         print("Error:", e)
-        input("Press enter to continue")
 
 # First run, create a local save of your currently used MGSV: TPP save
 def first_run(e):
     print("Probably first time running. Adding your current save file to saves list.")
     SAVE_CURRENT = input("Name your save file:  ").upper() or "DEFAULT"
-    with open(LOCAL_FOLDER + "current_save.txt", "w") as x:
+    os.system("mkdir " + LOCAL_FOLDER + USERNAME + "\\" + SAVE_CURRENT)
+    os.system("mkdir " + LOCAL_FOLDER + USERNAME + "\\" + SAVE_CURRENT + "\\" + MGSV1)
+    os.system("mkdir " + LOCAL_FOLDER + USERNAME + "\\" + SAVE_CURRENT + "\\" + MGSV2)
+    with open(LOCAL_FOLDER + USERNAME + "\\current_save.txt", "w") as x:
         x.write(SAVE_CURRENT)
-    os.system("mkdir " + LOCAL_FOLDER + SAVE_CURRENT)
-    os.system("mkdir " + LOCAL_FOLDER + SAVE_CURRENT + "\\" + MGSV1)
-    os.system("mkdir " + LOCAL_FOLDER + SAVE_CURRENT + "\\" + MGSV2)
     steam_to_local(SAVE_CURRENT)
     # Creating startup scripts.
     with open(LOCAL_FOLDER + "MGSV_SaveSwitcher.bat", "w") as f:
@@ -251,8 +283,9 @@ def first_run(e):
         f.write(SCRIPT_DIR[0:2] + " && cd " + SCRIPT_DIR + " && python mgsv.py v")
     with open(LOCAL_FOLDER + "MGSV_SaveSwitcher_DeleteSave.bat", "w") as f:
         f.write(SCRIPT_DIR[0:2] + " && cd " + SCRIPT_DIR + " && python mgsv.py d")
+    with open(LOCAL_FOLDER + "MGSV_SaveSwitcher_About.bat", "w") as f:
+        f.write(SCRIPT_DIR[0:2] + " && cd " + SCRIPT_DIR + " && python mgsv.py a")
     print("Shortcut scripts created to " + LOCAL_FOLDER + ". These scripts require Python to be installed.")
-    sys.exit()
 
 
 # Start script

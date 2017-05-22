@@ -22,16 +22,15 @@ def user_scan(STEAM_PATH):
                 break
     return USERNAMES
 
-
-# User selection
-def user_selection(USERNAMES):
+# Username selection
+def user_name(USERNAMES):
     os.system("cls")
     u  = 1
     user_temp_list = []
     for USER in USERNAMES:
         print(str(u) + ": Username: " + USER + ", UserID: " + USERNAMES[USER])
         u += 1
-        user_temp_list.append(USERNAMES[USER])
+        user_temp_list.append(USER)
     while(True):
         try:
             selection = int(input("Select your username (number on the list): "))
@@ -42,6 +41,6 @@ def user_selection(USERNAMES):
             print("Invalid selection, try again.")
         else:
             selection -= 1
-            USERID = user_temp_list[selection]
+            USERNAME = user_temp_list[selection]
             break
-    return USERID
+    return USERNAME

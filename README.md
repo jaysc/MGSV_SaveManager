@@ -5,6 +5,7 @@ This script at this development stage requires [Python 3](https://www.python.org
 If you experience bugs and errors, please create an issue with as accurate description of the issue as possible so I can try replicate and fix it.  
 ![Metal Gear Solid V: The Phantom Pain](http://static.gosunoob.com/img/1/2015/08/mgsv-the-phantom-pain-tips.jpg)
 ## Current functionality
+* Support for multiple users. A save folder for each user to which their saves are, well, saved.
 * Switching between multiple save files.
 * Create a new save file
 * Current save file used
