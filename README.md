@@ -1,5 +1,5 @@
 # MGSV_Save_Switcher
-**The functionality with this version is still quite in the early stages. There is some more bugs to be fixed compared to the bash version, but this should still work if you don't try anything too fancy. Please backup your saves before using this.**  
+**This script is still under development and bugs might appear. Most of fatal bugs should be dealth with, so the saves should be pretty safe and I try to catch as many bugs as I can before pushing new features out.**
 A Python 3 script to easily switch between multiple Metal Gear Solid V: The Phantom Pain save files and create new, empty saves.  
 This script at this development stage requires [Python 3](https://www.python.org/) to be installed on your computer.  
 If you experience bugs and errors, please create an issue with as accurate description of the issue as possible so I can try replicate and fix it.  
