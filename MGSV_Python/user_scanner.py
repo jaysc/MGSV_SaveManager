@@ -28,6 +28,8 @@ def user_name(USERNAMES):
     u  = 1
     user_temp_list = []
     for USER in USERNAMES:
+        if (len(USERNAMES) < 2):
+            return USER
         print(str(u) + ": Username: " + USER + ", UserID: " + USERNAMES[USER])
         u += 1
         user_temp_list.append(USER)

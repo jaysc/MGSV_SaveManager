@@ -10,7 +10,7 @@ def steam_find(LOCAL_DIR):
         with open(LOCAL_DIR + "steam_path.txt", "r") as i:
             DIR_TEMP = i.read().replace("\\Steam.exe", "").rstrip()
         return DIR_TEMP
-    # Path not found yet, probably first run
+    # Path missing, scan for Steam path
     except Exception as e:
         # List all usable drives, remove first line containing header
         os.system("wmic LOGICALDISK LIST BRIEF > " + LOCAL_DIR + "drvs.txt")
@@ -38,8 +38,7 @@ def steam_find(LOCAL_DIR):
                     STEAM_PATH = k.replace("\\Steam.exe", "").rstrip()
                     print("Steam found in " + STEAM_PATH)
                     break
-
-        # Remove files used in the previous steps
+        # Remove files used in the previous steps since no longer needed
         os.system("del /Q " + LOCAL_DIR + "drvs.txt 2> nul")
         os.system("del /Q " + LOCAL_DIR + "drives.txt 2> nul")
         return STEAM_PATH
