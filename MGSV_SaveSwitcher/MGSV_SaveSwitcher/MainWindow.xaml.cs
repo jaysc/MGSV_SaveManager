@@ -163,8 +163,10 @@ namespace MGSV_SaveSwitcher
         private void ApplyUser_Click(object sender, RoutedEventArgs e)
         {
             string userSelection = this.userList.Text;
+            string previousUser = this.currentUser.Text;
             this.userList.Text = "";
             this.currentUser.Text = userSelection;
+            ///this.mySteamScan.SteamToLocal(this.mySteamScan.CurrentSave(previousUser), previousUser);
             if (this.currentUser.Text == "Chooce your username from the user list below.")
             {
                 this.mySteamScan.FirstSave("Original", this.currentUser.Text);

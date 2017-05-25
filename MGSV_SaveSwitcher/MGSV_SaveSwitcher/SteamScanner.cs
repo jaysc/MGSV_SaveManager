@@ -141,11 +141,11 @@ namespace SteamScan
             Console.WriteLine("Line 141");
             Console.WriteLine(saves.Count);
             
-            if (saves.Count <= 1)
+            if (saves.Count <= 1 && username != "")
             {
                 Console.WriteLine("Line 144");
                 this.FirstSave("Original", username);
-            } else if (!saves.Contains(CurrentSave(username)))
+            } else if (!saves.Contains(CurrentSave(username)) && username != "")
             {
                 Console.WriteLine("Line 148");
                 ChangeCurrentSave(saves[0], username);
