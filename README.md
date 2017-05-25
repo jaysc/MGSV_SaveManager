@@ -14,7 +14,7 @@ This program has been tested on Windows 10 Pro Build 1703.
 * Scan for saves
   
 ## How to use
-**In order to create new saves, please turn off cloud sync for both MGSV: TPP AND MGSV: Ground Zeroes. Otherwise Steam will download the saves from the cloud on game launch.**
+**If you want to create new, empty saves, turn off Steam Cloud sync for both MGSV: The Phantom Pain and MGSV: Ground Zeroes. Otherwise Steam will download old cloud synced save.**
 When first running, the program will create a local save directory in **C:\\MGSV\_saves**. All the save files are stored under **C:\\MGSV\_saves\\USERNAME**.  
 * If you only have a single user, the program will select that user automatically.
 * If multiple users are found, select your username from the list.
