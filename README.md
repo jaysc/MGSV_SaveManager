@@ -2,6 +2,7 @@
 **This script is still under development and bugs might appear. Most of fatal bugs should be dealth with, so the saves should be pretty safe and I try to catch as many bugs as I can before pushing new features out.**  
 If you experience bugs and errors, please create an issue with as accurate description of the issue as possible so I can try replicate and fix it.  
 This program has been tested on Windows 10 Pro Build 1703.  
+Download the latest release from the [Releases](https://github.com/thatsafy/MGSV_Save_Switcher/releases).  
   
 ![Metal Gear Solid V: The Phantom Pain](http://static.gosunoob.com/img/1/2015/08/mgsv-the-phantom-pain-tips.jpg)
   
