@@ -5,13 +5,13 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:MGSV_SaveSwitcher"
         mc:Ignorable="d"
-        Title="MGSV: TPP Save Manager" Width="600" ResizeMode="CanMinimize" WindowStartupLocation="CenterScreen" Cursor="" Height="630" Icon="savemanager.ico">
-    
+        Title="MGSV: TPP Save Manager" Width="600" ResizeMode="CanMinimize" WindowStartupLocation="CenterScreen" Cursor="" Height="650" Icon="savemanager.ico">
+
     <Border Padding="10,20,10,10">
         <StackPanel>
 
             <TextBlock Text="Metal Gear Solid V: The Phantom Pain Save Manager" FontSize="14" Margin="10 0 10 20" FontWeight="Bold" HorizontalAlignment="Center"/>
-            
+
             <TextBlock Text="Status" FontWeight="Bold" FontSize="12" Margin="10 0 10 0"/>
             <Grid Margin="0,0,0,15">
                 <Grid.ColumnDefinitions>
@@ -30,7 +30,7 @@
                 <Label Grid.Column="0" Margin="10 0 10 0" Content="Current Save" HorizontalContentAlignment="Center" FontSize="12"/>
                 <TextBox Grid.Column="1" Name="currentSave" Text="Select user first." Margin="10 0 10 0" IsReadOnly="True" Background="LightGray" FontSize="12" VerticalContentAlignment="Center" HorizontalContentAlignment="Center"/>
             </Grid>
-            
+
             <TextBlock Text="Change User" FontWeight="Bold" Margin="10 0 10 0"/>
             <TextBlock Text="Users" Margin="10 0 10 0" FontSize="12"/>
             <Grid Margin="0,0,0,15">
@@ -39,10 +39,10 @@
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
                 <TextBlock Text="Users" Margin="10 0 10 0" FontSize="12"/>
-                <ComboBox Grid.Column="0" Name="userList" Margin="10 0 10 0" FontSize="12">
+                <ComboBox Grid.Column="0" Name="userList" IsEnabled="False" Margin="10 0 10 0" FontSize="12">
 
                 </ComboBox>
-                <Button Grid.Column="1" Name="applyUser" Click="ApplyUser_Click" Margin="10 0 10 0" Content="Apply" FontSize="12"/>
+                <Button Grid.Column="1" Name="applyUser" IsEnabled="False" Click="ApplyUser_Click" Margin="10 0 10 0" Content="Apply" FontSize="12"/>
             </Grid>
 
             <TextBlock Text="Change Save" FontWeight="Bold" Margin="10 0 10 0"/>
@@ -54,9 +54,9 @@
                 </Grid.ColumnDefinitions>
                 <TextBlock Text="Saves" Margin="10 0 10 0" FontSize="12"/>
                 <ComboBox Grid.Column="0" IsEnabled="False" Name="saveChangeList" Margin="10 0 10 0" FontSize="12">
-                    
+
                 </ComboBox>
-                <Button Grid.Column="1" Name="applySaveChange" Click="ApplySaveChange_Click" Margin="10 0 10 0" Content="Apply" FontSize="12"/>
+                <Button Grid.Column="1" Name="applySaveChange" IsEnabled="False" Click="ApplySaveChange_Click" Margin="10 0 10 0" Content="Apply" FontSize="12"/>
             </Grid>
 
             <TextBlock Text="Rename Save" Name="RenameSave" FontWeight="Bold" Margin="10 0 10 10" />
@@ -76,7 +76,7 @@
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
                 <TextBox Grid.Column="0" Name="newSaveName" Background ="LightGray" IsReadOnly="True" FontSize="12" Margin="10 0 10 0"/>
-                <Button Grid.Column="1" Name="applyNewSaveName" Click="ApplyNewSaveName_Click" Content="Apply" FontSize="12" Margin="10 0 10 0"/>
+                <Button Grid.Column="1" Name="applyNewSaveName" IsEnabled="False" Click="ApplyNewSaveName_Click" Content="Apply" FontSize="12" Margin="10 0 10 0"/>
             </Grid>
 
             <TextBlock Text="Delete Save" FontWeight="Bold" Margin="10 0 10 0"/>
@@ -88,11 +88,11 @@
                 </Grid.ColumnDefinitions>
                 <TextBlock Text="Saves" Margin="10 0 10 0" FontSize="12"/>
                 <ComboBox Grid.Column="0" IsEnabled="False" Name="saveDelList" Margin="10 0 10 0" FontSize="12">
-                    
+
                 </ComboBox>
-                <Button Grid.Column="1" Name="applyDelSave" Click="ApplyDelSave_Click" Margin="10 0 10 0" Content="Apply" FontSize="12"/>
+                <Button Grid.Column="1" Name="applyDelSave" IsEnabled="False" Click="ApplyDelSave_Click" Margin="10 0 10 0" Content="Apply" FontSize="12"/>
             </Grid>
-            
+
             <Grid Margin="0, 0, 0, 15">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
@@ -107,20 +107,31 @@
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="2*" />
                 </Grid.ColumnDefinitions>
-                <Button Grid.Column="0" Content="Save Scan"  Click="SaveScan_Click" Margin="10 0 10 0"  FontSize="12"/>
+                <Button Grid.Column="0" Content="Save Scan" Name="StartSaveScan" IsEnabled="False" Click="SaveScan_Click" Margin="10 0 10 0"  FontSize="12"/>
+                <Button Grid.Column="4" Content="Launch Game"  Click="LaunchGame_Click" Margin="10 0 10 0"  FontSize="12"/>
             </Grid>
 
             <Grid>
                 <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="2*"/>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
+                <TextBlock Grid.Column="0" HorizontalAlignment="Left" Margin="15 10 10 0">
+                    <Hyperlink TextDecorations="None" NavigateUri="https://github.com/thatsafy/MGSV_Save_Switcher" RequestNavigate="Hyperlink_RequestNavigate">
+                        <Image Source="GitHub-Mark.png" Width="45" />
+                    </Hyperlink>
+                </TextBlock>
                 <TextBlock Grid.Column="1"  Text="Antti Alasalmi 2017" FontSize="12" Margin="10 20 10 0" FontWeight="Bold" HorizontalAlignment="Center"/>
-                <TextBlock Grid.Column="0" Margin="10 20 10 0" HorizontalAlignment="Center"><Hyperlink NavigateUri="https://github.com/thatsafy/MGSV_Save_Switcher" RequestNavigate="Hyperlink_RequestNavigate">https://github.com/thatsafy/MGSV_Save_Switcher</Hyperlink></TextBlock>
+                <TextBlock Grid.Column="2" HorizontalAlignment="Right" Margin="10 10 15 0">
+                    <Hyperlink TextDecorations="None" NavigateUri="https://twitter.com/Thatsafy" RequestNavigate="Hyperlink_RequestNavigate">
+                        <Image Source="Twitter.png" Width="45" />
+                    </Hyperlink>
+                </TextBlock>
             </Grid>
-            
+
         </StackPanel>
     </Border>
 </Window>

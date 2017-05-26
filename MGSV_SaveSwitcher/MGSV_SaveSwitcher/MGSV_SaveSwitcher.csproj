@@ -127,5 +127,11 @@
   <ItemGroup>
     <Resource Include="savemanager.ico" />
   </ItemGroup>
+  <ItemGroup>
+    <Resource Include="GitHub-Mark.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Twitter.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
