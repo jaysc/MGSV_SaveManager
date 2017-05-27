@@ -32,6 +32,15 @@ namespace MGSV_SaveSwitcher
 
             SteamScanner();
 
+            Closing += MainWindow_Closing;
+
+            
+        }
+
+
+        private void MainWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            App.Current.Shutdown();
         }
 
         private void SteamScanner()
@@ -89,6 +98,7 @@ namespace MGSV_SaveSwitcher
                 this.newSaveName.Background = Brushes.White;
                 this.applyNewSaveName.IsEnabled = true;
                 this.StartSaveScan.IsEnabled = true;
+                this.SettingsButton.IsEnabled = true;
 
                 return true;
             }
@@ -211,8 +221,12 @@ namespace MGSV_SaveSwitcher
         private void ApplyNewSaveName_Click(object sender, RoutedEventArgs e)
         {
             Console.WriteLine("Applying new save");
-            string newSave = this.newSaveName.Text;
-            if (newSave.Trim() == "")
+            string newSave = this.newSaveName.Text.ToLower();
+            if (this.saveChangeList.Items.Contains(newSave))
+            {
+                MessageBox.Show($"Save by the name '{newSave}' already exists, please try another name.");
+                this.newSaveName.Text = "";
+            } else if (newSave.Trim() == "")
             {
                 MessageBox.Show("Please enter a valid name.");
             } else
@@ -223,6 +237,8 @@ namespace MGSV_SaveSwitcher
                     this.currentSave.Text = newSave;
                     this.mySteamScan.NewSave(newSave, this.currentUser.Text);
                     this.newSaveName.Text = "";
+                    SaveListing();
+                    Console.WriteLine("new save operation completed.");
                 }
                 else if (msgResult == MessageBoxResult.No)
                 {
@@ -230,8 +246,7 @@ namespace MGSV_SaveSwitcher
                     this.newSaveName.Text = "";
                 }
             }
-            SaveListing();
-            Console.WriteLine("new save operation completed.");
+            
         }
 
         /// <summary>
@@ -313,9 +328,34 @@ namespace MGSV_SaveSwitcher
             
         }
 
+        /// <summary>
+        /// Launch The Phantom Pain
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void LaunchGame_Click(object sender, RoutedEventArgs e)
         {
             this.mySteamScan.LaunchGame();
+        }
+
+
+        /// <summary>
+        /// Launch graphics window
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        public void LaunchSettings_Click(object sender, RoutedEventArgs e)
+        {
+            SettingsWindow settings = new SettingsWindow(this.currentUser.Text, this.steamPath.Text, this.mySteamScan.getUserID(this.currentUser.Text), this.currentSave.Text);
+            settings.Show();
+            this.IsEnabled = false;
+            settings.Closing += EnableMain;
+            
+        }
+
+        private void EnableMain(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            this.IsEnabled = true;
         }
 
     }

@@ -1,0 +1,28 @@
+{
+   "as" : "wFmnhGpn7Wc=",
+   "graphics" : {
+      "quality_setting" : {
+         "depth_of_field" : "Enable",
+         "effect" : "High",
+         "lighting" : "High",
+         "model_detail" : "High",
+         "motion_blur_amount" : "Medium",
+         "postprocess" : "High",
+         "shadow" : "High",
+         "ssao" : "High",
+         "texture" : "High",
+         "texture_filtering" : "High",
+         "volumetric_clouds" : "On"
+      },
+      "version" : 1,
+      "videoout_setting" : {
+         "display_index" : 0,
+         "framerate_control" : "Auto",
+         "height" : 1080,
+         "vsync" : "Enable",
+         "width" : 1920,
+         "window_mode" : "FullScreenWindowed"
+      }
+   },
+   "project" : "tpp"
+}

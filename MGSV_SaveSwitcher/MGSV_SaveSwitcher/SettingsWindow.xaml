@@ -1,0 +1,366 @@
+﻿<Window x:Class="MGSV_SaveSwitcher.SettingsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:MGSV_SaveSwitcher"
+        mc:Ignorable="d"
+        Title="Settings" Height="660" Width="450" ResizeMode="NoResize">
+    <!--Settings manager-->
+    <Border Padding="10,20,10,10">
+        <StackPanel>
+            <TextBlock Text="Settings" FontWeight="Bold" HorizontalAlignment="Center" FontSize="14"/>
+            <TextBox Name="CurrentUserSettings" Text="Current user will be here." Margin="50 10 50 15" Padding="0 1 0 1" IsReadOnly="True" Background="GhostWhite" FontSize="12" VerticalContentAlignment="Center" HorizontalContentAlignment="Center"/>
+            <!--Resolution and Preset-->
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Grid.Column="0" Margin="10 0 10 0" Text="Resolution" HorizontalAlignment="Center" />
+                <TextBlock Grid.Column="1" Margin="10 0 10 0" Text="Preset" HorizontalAlignment="Center" />
+            </Grid>
+            
+            <Grid Margin="0,0,0,15">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+
+                </Grid.ColumnDefinitions>
+                <!--Resolutions-->
+                <!--Load the resolutions from system or something-->
+                <ComboBox Grid.Column="0" Name="ResolutionBox" IsEnabled="False" Margin="10 0 10 0">
+                    <ComboBoxItem>
+                        <TextBlock Text="1920x1080"/>
+                    </ComboBoxItem>
+                </ComboBox>
+                <!--Presets-->
+                <ComboBox Grid.Column="1" Name="PresetBox" SelectionChanged="ApplyPreset" DropDownClosed="ComboBox_DropDownClosed" IsEnabled="True" Margin="10 0 10 0">
+                    <ComboBoxItem>
+                        <TextBlock Text="Very High"/>
+                    </ComboBoxItem>
+                    <ComboBoxItem>
+                        <TextBlock Text="High"/>
+                    </ComboBoxItem>
+                    <ComboBoxItem>
+                        <TextBlock Text="Medium"/>
+                    </ComboBoxItem>
+                    <ComboBoxItem>
+                        <TextBlock Text="Low"/>
+                    </ComboBoxItem>
+                </ComboBox>
+            </Grid>
+            
+            <!--Fullscreen and Vertical Sync-->
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Grid.Column="0" Margin="10 0 10 0" Text="Fullscreen Mode" HorizontalAlignment="Center" />
+                <TextBlock Grid.Column="1" Margin="10 0 10 0" Text="Vertical Sync" HorizontalAlignment="Center" />
+            </Grid>
+
+            <Grid Margin="0,0,0,15">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <!--Fullscreen mode-->
+                <ComboBox Grid.Column="0" Name="window_mode" Margin="10 0 10 0">
+                    <ComboBoxItem>
+                        <TextBlock Text="FullScreen" />
+                    </ComboBoxItem>
+                    <ComboBoxItem>
+                        <TextBlock Text="FullScreenWindowed" />
+                    </ComboBoxItem>
+                    <ComboBoxItem>
+                        <TextBlock Text="Windowed" />
+                    </ComboBoxItem>
+                </ComboBox>
+                <!--Vertical Sync-->
+                <ComboBox Grid.Column="1" Name="vsync" Margin="10 0 10 0">
+                    <ComboBoxItem>
+                        <TextBlock Text="Enable"/>
+                    </ComboBoxItem>
+                    <ComboBoxItem>
+                        <TextBlock Text="Disable"/>
+                    </ComboBoxItem>
+                </ComboBox>
+            </Grid>
+
+            <!--Framerate and Motion blur-->
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Grid.Column="0" Margin="10 0 10 0" Text="Frame Rate" HorizontalAlignment="Center" />
+                <TextBlock Grid.Column="1" Margin="10 0 10 0" Text="Motion Blur" HorizontalAlignment="Center" />
+            </Grid>
+
+            <Grid Margin="0,0,0,15">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <!--Framerate-->
+                <ComboBox Grid.Column="0" Name="framerate_control" Margin="10 0 10 0">
+                    <ComboBoxItem>
+                        <TextBlock Text="Auto" />
+                    </ComboBoxItem>
+                    <ComboBoxItem>
+                        <TextBlock Text="Limited30" />
+                    </ComboBoxItem>
+                </ComboBox>
+                <!--Vertical Sync-->
+                <ComboBox Grid.Column="1" Name="motion_blur_amount" Margin="10 0 10 0">
+                    <ComboBoxItem>
+                        <TextBlock Text="Large"/>
+                    </ComboBoxItem>
+                    <ComboBoxItem>
+                        <TextBlock Text="Medium"/>
+                    </ComboBoxItem>
+                    <ComboBoxItem>
+                        <TextBlock Text="Small"/>
+                    </ComboBoxItem>
+                    <ComboBoxItem>
+                        <TextBlock Text="Off"/>
+                    </ComboBoxItem>
+                </ComboBox>
+            </Grid>
+
+            <!--DoF and Model detail-->
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Grid.Column="0" Margin="10 0 10 0" Text="Depth of Field" HorizontalAlignment="Center" />
+                <TextBlock Grid.Column="1" Margin="10 0 10 0" Text="Model Detail" HorizontalAlignment="Center" />
+            </Grid>
+
+            <Grid Margin="0,0,0,15">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <!--Framerate-->
+                <ComboBox Grid.Column="0" Name="depth_of_field" Margin="10 0 10 0">
+                    <ComboBoxItem>
+                        <TextBlock Text="Enable" />
+                    </ComboBoxItem>
+                    <ComboBoxItem>
+                        <TextBlock Text="Disable" />
+                    </ComboBoxItem>
+                </ComboBox>
+                <!--Vertical Sync-->
+                <ComboBox Grid.Column="1" Name="model_detail" Margin="10 0 10 0">
+                    <ComboBoxItem>
+                        <TextBlock Text="ExtraHigh"/>
+                    </ComboBoxItem>
+                    <ComboBoxItem>
+                        <TextBlock Text="High"/>
+                    </ComboBoxItem>
+                    <ComboBoxItem>
+                        <TextBlock Text="Medium"/>
+                    </ComboBoxItem>
+                    <ComboBoxItem>
+                        <TextBlock Text="Low"/>
+                    </ComboBoxItem>
+                </ComboBox>
+            </Grid>
+
+            <!--Textures and Texture Filtering-->
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Grid.Column="0" Margin="10 0 10 0" Text="Textures" HorizontalAlignment="Center" />
+                <TextBlock Grid.Column="1" Margin="10 0 10 0" Text="Texture Filtering" HorizontalAlignment="Center" />
+            </Grid>
+
+            <Grid Margin="0,0,0,15">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <!--Textures-->
+                <ComboBox Grid.Column="0" Name="texture" Margin="10 0 10 0">
+                    <ComboBoxItem>
+                        <TextBlock Text="ExtraHigh" />
+                    </ComboBoxItem>
+                    <ComboBoxItem>
+                        <TextBlock Text="High" />
+                    </ComboBoxItem>
+                    <ComboBoxItem>
+                        <TextBlock Text="Medium" />
+                    </ComboBoxItem>
+                    <ComboBoxItem>
+                        <TextBlock Text="Low" />
+                    </ComboBoxItem>
+                </ComboBox>
+                <!--Texture Filtering-->
+                <ComboBox Grid.Column="1" Name="texture_filtering" Margin="10 0 10 0">
+                    <ComboBoxItem>
+                        <TextBlock Text="ExtraHigh"/>
+                    </ComboBoxItem>
+                    <ComboBoxItem>
+                        <TextBlock Text="High"/>
+                    </ComboBoxItem>
+                    <ComboBoxItem>
+                        <TextBlock Text="Medium"/>
+                    </ComboBoxItem>
+                </ComboBox>
+            </Grid>
+
+            <!--Shadows and Lightning-->
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Grid.Column="0" Margin="10 0 10 0" Text="Shadows" HorizontalAlignment="Center" />
+                <TextBlock Grid.Column="1" Margin="10 0 10 0" Text="Lighting" HorizontalAlignment="Center" />
+            </Grid>
+
+            <Grid Margin="0,0,0,15">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <!--Shadows-->
+                <ComboBox Grid.Column="0" Name="shadow" Margin="10 0 10 0">
+                    <ComboBoxItem>
+                        <TextBlock Text="ExtraHigh" />
+                    </ComboBoxItem>
+                    <ComboBoxItem>
+                        <TextBlock Text="High" />
+                    </ComboBoxItem>
+                    <ComboBoxItem>
+                        <TextBlock Text="Medium" />
+                    </ComboBoxItem>
+                    <ComboBoxItem>
+                        <TextBlock Text="Low" />
+                    </ComboBoxItem>
+                </ComboBox>
+                <!--Lightning-->
+                <ComboBox Grid.Column="1" Name="lighting" Margin="10 0 10 0">
+                    <ComboBoxItem>
+                        <TextBlock Text="ExtraHigh"/>
+                    </ComboBoxItem>
+                    <ComboBoxItem>
+                        <TextBlock Text="High"/>
+                    </ComboBoxItem>
+                    <ComboBoxItem>
+                        <TextBlock Text="Low"/>
+                    </ComboBoxItem>
+                </ComboBox>
+            </Grid>
+
+            <!--Post Processing and Effects-->
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Grid.Column="0" Margin="10 0 10 0" Text="Post Processing" HorizontalAlignment="Center" />
+                <TextBlock Grid.Column="1" Margin="10 0 10 0" Text="Effects" HorizontalAlignment="Center" />
+            </Grid>
+
+            <Grid Margin="0,0,0,15">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <!--Post processing-->
+                <ComboBox Grid.Column="0" Name="postprocess" Margin="10 0 10 0">
+                    <ComboBoxItem>
+                        <TextBlock Text="ExtraHigh" />
+                    </ComboBoxItem>
+                    <ComboBoxItem>
+                        <TextBlock Text="High" />
+                    </ComboBoxItem>
+                    <ComboBoxItem>
+                        <TextBlock Text="Low" />
+                    </ComboBoxItem>
+                    <ComboBoxItem>
+                        <TextBlock Text="Off" />
+                    </ComboBoxItem>
+                </ComboBox>
+                <!--Effects-->
+                <ComboBox Grid.Column="1" Name="effect" Margin="10 0 10 0">
+                    <ComboBoxItem>
+                        <TextBlock Text="ExtraHigh"/>
+                    </ComboBoxItem>
+                    <ComboBoxItem>
+                        <TextBlock Text="High"/>
+                    </ComboBoxItem>
+                    <ComboBoxItem>
+                        <TextBlock Text="Low"/>
+                    </ComboBoxItem>
+                </ComboBox>
+            </Grid>
+
+            <!--Ambient Occulsion and Volumetric clouds-->
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Grid.Column="0" Margin="10 0 10 0" Text="Ambient Occulsion" HorizontalAlignment="Center" />
+                <TextBlock Grid.Column="1" Margin="10 0 10 0" Text="Volumetric Clouds" HorizontalAlignment="Center" />
+            </Grid>
+
+            <Grid Margin="0,0,0,15">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <!--Ambient Occulsion-->
+                <ComboBox Grid.Column="0" Name="ssao" Margin="10 0 10 0">
+                    <ComboBoxItem>
+                        <TextBlock Text="ExtraHigh" />
+                    </ComboBoxItem>
+                    <ComboBoxItem>
+                        <TextBlock Text="High" />
+                    </ComboBoxItem>
+                    <ComboBoxItem>
+                        <TextBlock Text="Off" />
+                    </ComboBoxItem>
+                </ComboBox>
+                <!--Volumetric Clouds-->
+                <ComboBox Grid.Column="1" Name="volumetric_clouds" Margin="10 0 10 0">
+                    <ComboBoxItem>
+                        <TextBlock Text="On"/>
+                    </ComboBoxItem>
+                    <ComboBoxItem>
+                        <TextBlock Text="Off"/>
+                    </ComboBoxItem>
+                </ComboBox>
+            </Grid>
+
+            
+            <!--Revert and Apply -->
+            <Grid Margin="0,20,0,15">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Button Grid.Column="0" Click="Revert_Click" IsEnabled="True" Margin="10 0 10 0" Content="Revert" />
+                <Button Grid.Column="1" Click="ApplySettings_Click" Margin="10 0 10 0" Content="Apply" />
+            </Grid>
+
+            <Grid Margin="0,10,0,15">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Button Grid.Column="1" Click="CancelSettings_Click" Content="Cancel" IsEnabled="True"/>
+            </Grid>
+            
+        </StackPanel>
+    </Border>
+</Window>

@@ -11,7 +11,6 @@ namespace SteamScan
         private string steamPath = "";
         private List<string> userNames = new List<string>();
         
-        private string userID = "";
         private string MGSV_Game = "steamapps\\common\\MGS_TPP\\mgsvtpp.exe";
         private string MGSV1 = "287700";
         private string MGSV2 = "311340";
@@ -31,6 +30,17 @@ namespace SteamScan
             this.MGSV_Saves.Add($"{this.MGSV2}\\remote\\TPP_CONFIG_DATA");
             this.MGSV_Saves.Add($"{this.MGSV2}\\remote\\TPP_GAME_DATA");
             this.MGSV_Saves.Add($"{this.MGSV2}\\remote\\PERSONAL_DATA");
+        }
+
+
+        /// <summary>
+        /// Get users ID
+        /// </summary>
+        /// <param name="username"></param>
+        /// <returns></returns>
+        public string getUserID(string username)
+        {
+            return this.NameID[username];
         }
 
 
@@ -61,12 +71,11 @@ namespace SteamScan
                 for (int i = 1; i < drives.Length; i++)
                 {
                     drives[i] = drives[i][0] + ":";
-                    /// Put proper path here before release!
                     findSteam = $"{drives[i]} && dir /s /b Steam.exe >> {this.localDir}\\temp_path.txt";
                     CommandPrompter(findSteam);
                 }
+
                 string[] temp_path = File.ReadAllLines($"{this.localDir}\\temp_path.txt");
-                ///File.Open($"{localDir}\\steam_path.txt", FileMode.Open, FileAccess.Read, FileShare.Read);
                 foreach (string x in temp_path)
                 {
                     if (x.Contains("Steam.exe"))
@@ -139,13 +148,10 @@ namespace SteamScan
                             {
                                 this.NameID.Add(username, userid);
                                 this.userNames.Add(username);
-                            }
-
-                            
+                            }                            
                         }
                     }
                 }
-                
             }
             Console.WriteLine("User scanned, found " + this.NameID.Count + " users.");
             return this.NameID;
@@ -190,8 +196,8 @@ namespace SteamScan
             if (saves.Count < 1 && username != "")
             {
                 Console.WriteLine("No saves found, creating new one");
-                this.FirstSave("Original", username);
-                this.ChangeCurrentSave("Original", username);
+                this.FirstSave("original", username);
+                this.ChangeCurrentSave("original", username);
             } else if (!saves.Contains(CurrentSave(username)) && username != "")
             {
                 Console.WriteLine("Saves found, but the current_save not among them.");
@@ -223,6 +229,12 @@ namespace SteamScan
             Console.WriteLine("Steam to local completed");
         }
 
+
+        /// <summary>
+        /// Copy local save to steam directory
+        /// </summary>
+        /// <param name="currentSave"></param>
+        /// <param name="username"></param>
         public void LocalToSteam(string currentSave, string username)
         {
             Console.WriteLine("local to steam starting");
@@ -234,9 +246,6 @@ namespace SteamScan
             this.CommandPrompter(command);
             Console.WriteLine("Local to steam complet");
         }
-
-
-
 
 
         /// <summary>
@@ -260,6 +269,11 @@ namespace SteamScan
                 
         }
 
+
+        /// <summary>
+        /// Backup steam save for the previous user
+        /// </summary>
+        /// <param name="prevuser"></param>
         public void ChangeUser(string prevuser)
         {
             Console.WriteLine("Changing user.");
@@ -405,7 +419,7 @@ namespace SteamScan
         public void LaunchGame()
         {
             Console.WriteLine("Launching MGSV: TPP game");
-            Console.WriteLine($"{this.steamPath}{MGSV_Game}");
+            Console.WriteLine($"{this.steamPath.Trim()}{MGSV_Game}");
             System.Diagnostics.Process.Start($"{this.steamPath.Trim()}{MGSV_Game}");
         }
 
