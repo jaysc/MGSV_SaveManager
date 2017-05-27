@@ -1,9 +1,9 @@
-# MGSV\_Save\_Switcher
-**This script is still under development and bugs might appear. Most of fatal bugs should be dealth with, so the saves should be pretty safe and I try to catch as many bugs as I can before pushing new features out.**  
+# MGSV Save Manager
 If you experience bugs and errors, please create an issue with as accurate description of the issue as possible so I can try replicate and fix it.  
-This program has been tested on Windows 10 Pro Build 1703.  
 Download the latest release from the [Releases](https://github.com/thatsafy/MGSV_Save_Switcher/releases).  
   
+MGSV Save Manager is a handy, all in one management software to manage save files and configure in game graphical settings. The program is a single executable, which does not require installation and can be run from anywhere in the system, so just place it somewhere you can easily access it!  
+
 ![Metal Gear Solid V: The Phantom Pain](http://static.gosunoob.com/img/1/2015/08/mgsv-the-phantom-pain-tips.jpg)
   
 ## Current functionality
@@ -13,6 +13,8 @@ Download the latest release from the [Releases](https://github.com/thatsafy/MGSV
 * Save deletion
 * New save creation
 * Scan for saves
+* Configure in game graphics settings
+  * Currently Resolution and Display not configurable via the manager.
   
 ## How to use
 **If you want to create new, empty saves, turn off Steam Cloud sync for both MGSV: The Phantom Pain and MGSV: Ground Zeroes. Otherwise Steam will download old cloud synced save.**
@@ -24,4 +26,4 @@ When first running, the program will create a local save directory in **C:\\MGSV
 * **Switch between saves** by selecting a save from the list (only if more than one save found) and clicking **Apply**.
 * **Delete saves** by selecting the save from the list and click **Apply**.
 * If you add a save file manually while the program is running, you can click **Save Scan** to update the save lists.
-If you encounter bugs, please create **an issue** with as accurate description as possible of what tried to do and at what point the error/bug happened.  
+If you encounter bugs, please create **an issue** with as accurate description as possible of what you tried to do and at what point the error/bug happened.  
