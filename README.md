@@ -1,4 +1,5 @@
 # MGSV Save Manager
+**This is a development branchm and not recommended for general usse. Some things may be broken or still under development so for more stable release, go to the master branch.**
 If you experience bugs and errors, please create an issue with as accurate description of the issue as possible so I can try replicate and fix it.  
 Download the latest release from the [Releases](https://github.com/thatsafy/MGSV_Save_Switcher/releases).  
   

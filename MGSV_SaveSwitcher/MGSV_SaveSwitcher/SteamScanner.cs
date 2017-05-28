@@ -416,6 +416,10 @@ namespace SteamScan
             Console.WriteLine("deletion completed.");
         }
 
+
+        /// <summary>
+        /// Launch the game
+        /// </summary>
         public void LaunchGame()
         {
             Console.WriteLine("Launching MGSV: TPP game");
