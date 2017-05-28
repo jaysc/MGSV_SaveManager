@@ -12,7 +12,6 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using System.IO;
-
 using System.Reflection;
 
 namespace MGSV_SaveSwitcher
@@ -30,13 +29,6 @@ namespace MGSV_SaveSwitcher
         private bool handle = true;
         Dictionary<string, string> graphicSettings = new Dictionary<string, string>();
         
-        /// Presets
-        /*
-        Dictionary<string, string> lowPreset = new Dictionary<string, string>();
-        Dictionary<string, string> mediumPreset = new Dictionary<string, string>();
-        Dictionary<string, string> highPreset = new Dictionary<string, string>();
-        Dictionary<string, string> veryHighPreset = new Dictionary<string, string>();
-        */
 
         public SettingsWindow(string currentUser, string steamPath, string userid, string currentSave)
         {
@@ -45,19 +37,10 @@ namespace MGSV_SaveSwitcher
             this.steampath = steamPath;
             this.userid = userid;
             this.currentSave = currentSave;
+            this.CurrentSaveSettings.Text = currentSave;
             this.localPath += this.CurrentUserSettings.Text + "\\";
             this.steamConfigPath = $"{this.steampath.Trim()}userdata\\{this.userid.Trim()}\\287700\\local\\TPP_GRAPHICS_CONFIG";
             this.LoadSettings(this.graphicSettings);
-
-            /// Fill preset files
-            /*
-            string path = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), @"PRESETS\");
-            
-            this.lowPreset = this.loadSettingsFromFile(this.lowPreset, path + "LOW_PRESET");
-            this.mediumPreset = this.loadSettingsFromFile(this.mediumPreset, path + "MEDIUM_PRESET");
-            this.highPreset = this.loadSettingsFromFile(this.highPreset, path + "HIGH_PRESET");
-            this.veryHighPreset = this.loadSettingsFromFile(this.veryHighPreset, path + "VERYHIGH_PRESET");
-            */
         }
 
 
@@ -89,6 +72,10 @@ namespace MGSV_SaveSwitcher
             this.ResolutionBox.Text = settings["width"] + "x" + settings["height"];
         }
 
+
+        /// <summary>
+        /// Low preset
+        /// </summary>
         public void LowPreset()
         {
             this.depth_of_field.Text = "Disable";
@@ -108,6 +95,10 @@ namespace MGSV_SaveSwitcher
             this.ResolutionBox.Text = "1920" + "x" + "1080";
         }
 
+
+        /// <summary>
+        /// Medium preset
+        /// </summary>
         public void MediumPreset()
         {
             this.depth_of_field.Text = "Disable";
@@ -127,6 +118,10 @@ namespace MGSV_SaveSwitcher
             this.ResolutionBox.Text = "1920" + "x" + "1080";
         }
 
+
+        /// <summary>
+        /// High preset
+        /// </summary>
         public void HighPreset()
         {
             this.depth_of_field.Text = "Enable";
@@ -146,6 +141,10 @@ namespace MGSV_SaveSwitcher
             this.ResolutionBox.Text = "1920" + "x" + "1080";
         }
 
+
+        /// <summary>
+        /// Very high preset
+        /// </summary>
         public void VeryHighPreset()
         {
             this.depth_of_field.Text = "Enable";
@@ -166,6 +165,12 @@ namespace MGSV_SaveSwitcher
 
         }
 
+
+        /// <summary>
+        /// drobdown list event
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void ComboBox_DropDownClosed (object sender, EventArgs e)
         {
             Console.WriteLine("ComboBox");
@@ -173,6 +178,12 @@ namespace MGSV_SaveSwitcher
             this.handle = true;
         }
 
+
+        /// <summary>
+        /// Dropbown if changed activator
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void ApplyPreset (object sender, SelectionChangedEventArgs e)
         {
             Console.WriteLine("changed");
@@ -181,6 +192,10 @@ namespace MGSV_SaveSwitcher
             Handle();
         }
 
+
+        /// <summary>
+        /// Apply preset to the settings options
+        /// </summary>
         private void Handle()
         {
             if (this.PresetBox.SelectedItem != null)
@@ -202,9 +217,9 @@ namespace MGSV_SaveSwitcher
                     case "":
                         break;
                 }
-            }
-            
+            }    
         }
+
 
         /// <summary>
         /// Load settings to the graphics settings dictionary from file
@@ -286,6 +301,7 @@ namespace MGSV_SaveSwitcher
             this.CommandPrompter(command);
         }
 
+
         /// <summary>
         /// Cancel settings, nothing saved.
         /// </summary>
@@ -298,7 +314,7 @@ namespace MGSV_SaveSwitcher
 
 
         /// <summary>
-        /// Apply graphics settings
+        /// Apply graphics settings and close settings window
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -324,11 +340,13 @@ namespace MGSV_SaveSwitcher
             settingslist.Add("height", this.ResolutionBox.Text.Split('x')[1]);
             settingslist.Add("framerate_control", this.framerate_control.Text);
 
+            /// Save settings and copy to the currently used save
             this.saveSettings(settingslist);
             this.loadSettingsFromFile(this.graphicSettings, this.steamConfigPath);
 
             this.Close();
         }
+
 
         /// <summary>
         /// Revert settings to last saved

@@ -23,30 +23,36 @@ namespace MGSV_SaveSwitcher
     /// </summary>
     public partial class MainWindow : Window
     {
+
         MySteamScanner mySteamScan = new MySteamScanner();
 
         public MainWindow()
         {
-
             InitializeComponent();
-
-            SteamScanner();
-
+            SaveManager();
             Closing += MainWindow_Closing;
-
-            
         }
 
 
+        /// <summary>
+        /// Closing main window closes entire application
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void MainWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
             App.Current.Shutdown();
         }
 
-        private void SteamScanner()
+
+        /// <summary>
+        /// program logic starts here
+        /// </summary>
+        private void SaveManager()
         {
             Console.WriteLine("Starting steam scan");
             string steamPath = this.mySteamScan.ScanSteam();
+
             if (steamPath == "")
             {
                 MessageBox.Show("Steam not found, if you are sure it's installed and keep getting this message, please make an bug report to the GitHub project page.");
@@ -81,6 +87,7 @@ namespace MGSV_SaveSwitcher
              
         }
 
+
         /// <summary>
         /// When user is selected, enable save options
         /// </summary>
@@ -104,6 +111,8 @@ namespace MGSV_SaveSwitcher
             }
             return false;
         }
+
+
         /// <summary>
         /// Add saves to the dropdown menus
         /// </summary>
@@ -117,7 +126,7 @@ namespace MGSV_SaveSwitcher
                 this.applyDelSave.IsEnabled = true;
                 this.saveChangeList.IsEnabled = true;
                 this.applySaveChange.IsEnabled = true;
-            } else
+            }  else
             {
                 this.saveDelList.IsEnabled = false;
                 this.applyDelSave.IsEnabled = false;
@@ -150,7 +159,6 @@ namespace MGSV_SaveSwitcher
                 this.saveChangeList.Items.Remove(x);
             }
 
-
             foreach (string x in saves)
             {
                 if (!this.saveDelList.Items.Contains(x))
@@ -168,6 +176,8 @@ namespace MGSV_SaveSwitcher
                 Console.WriteLine(x);
             }
         }
+
+
         /// <summary>
         /// Apply selected user from dropdown menu
         /// </summary>
@@ -185,14 +195,12 @@ namespace MGSV_SaveSwitcher
 
             if (previousUser != "")
             {
-                
                 this.mySteamScan.ChangeUser(previousUser);
                 SaveListing();
-                
             } 
-
             UserCheck();
         }
+
 
         /// <summary>
         /// Apply selected save file (save switching)
@@ -212,6 +220,7 @@ namespace MGSV_SaveSwitcher
             SaveListing();
             Console.WriteLine("Save changed.");
         }
+
 
         /// <summary>
         /// Apply the name for new save
@@ -246,8 +255,8 @@ namespace MGSV_SaveSwitcher
                     this.newSaveName.Text = "";
                 }
             }
-            
         }
+
 
         /// <summary>
         /// Apply selected save to be deleted.
@@ -270,8 +279,6 @@ namespace MGSV_SaveSwitcher
                 if (msgResult == MessageBoxResult.Yes)
                 {
                     this.mySteamScan.DeleteSave(saveSelection, this.currentUser.Text);
-                    this.currentSave.Text = this.mySteamScan.CurrentSave(this.currentUser.Text);
-
                 }
                 else if (msgResult == MessageBoxResult.No)
                 {
@@ -279,6 +286,7 @@ namespace MGSV_SaveSwitcher
                 }
             }
             SaveListing();
+            this.currentSave.Text = this.mySteamScan.CurrentSave(this.currentUser.Text);
             Console.WriteLine("delete save operation done.");
         }
 
@@ -325,8 +333,8 @@ namespace MGSV_SaveSwitcher
                 MessageBox.Show("Operation cancelled, no changes made.");
             }
             this.RenameSaveName.Text = "";
-            
         }
+
 
         /// <summary>
         /// Launch The Phantom Pain
@@ -350,13 +358,17 @@ namespace MGSV_SaveSwitcher
             settings.Show();
             this.IsEnabled = false;
             settings.Closing += EnableMain;
-            
         }
 
+
+        /// <summary>
+        /// Disable main window elements when settings window is open.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void EnableMain(object sender, System.ComponentModel.CancelEventArgs e)
         {
             this.IsEnabled = true;
         }
-
     }
 }
