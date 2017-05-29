@@ -49,7 +49,7 @@ namespace MGSV_SaveSwitcher
         /// </summary>
         private void LoadSettings(Dictionary<string, string> settings)
         {
-            settings = this.loadSettingsFromFile(settings, this.steamConfigPath);
+            settings = this.LoadSettingsFromFile(settings, this.steamConfigPath);
 
             foreach (KeyValuePair<string, string> line in this.graphicSettings)
             {
@@ -174,7 +174,7 @@ namespace MGSV_SaveSwitcher
         /// <param name="e"></param>
         private void ComboBox_DropDownClosed (object sender, EventArgs e)
         {
-            Console.WriteLine("ComboBox");
+            Console.WriteLine("ComboBox closed");
             if (handle) Handle();
             this.handle = true;
         }
@@ -187,7 +187,7 @@ namespace MGSV_SaveSwitcher
         /// <param name="e"></param>
         private void ApplyPreset (object sender, SelectionChangedEventArgs e)
         {
-            Console.WriteLine("changed");
+            Console.WriteLine("Preset selected");
             ComboBox cmb = sender as ComboBox;
             this.handle = !cmb.IsDropDownOpen;
             Handle();
@@ -226,7 +226,7 @@ namespace MGSV_SaveSwitcher
         /// Load settings to the graphics settings dictionary from file
         /// </summary>
         /// <param name="settings"></param>
-        public Dictionary<string, string> loadSettingsFromFile(Dictionary<string, string> settings, string path)
+        public Dictionary<string, string> LoadSettingsFromFile(Dictionary<string, string> settings, string path)
         {
             settings = new Dictionary<string, string>();
             string[] settingsSteam = File.ReadAllLines(path);
@@ -250,7 +250,7 @@ namespace MGSV_SaveSwitcher
         /// Save settings to a file
         /// </summary>
         /// <param name="settings"></param>
-        private void saveSettings(Dictionary<string, string> finalsettings)
+        private void SaveSettings(Dictionary<string, string> finalsettings)
         {
             string[] settings = File.ReadAllLines($"{this.steampath.Trim()}userdata\\{this.userid.Trim()}\\287700\\local\\TPP_GRAPHICS_CONFIG");
             List<string> temp_settings = new List<string>();
@@ -342,8 +342,8 @@ namespace MGSV_SaveSwitcher
             settingslist.Add("framerate_control", this.framerate_control.Text);
 
             /// Save settings and copy to the currently used save
-            this.saveSettings(settingslist);
-            this.loadSettingsFromFile(this.graphicSettings, this.steamConfigPath);
+            this.SaveSettings(settingslist);
+            this.LoadSettingsFromFile(this.graphicSettings, this.steamConfigPath);
 
             this.Close();
         }

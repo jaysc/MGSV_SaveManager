@@ -71,7 +71,7 @@
                     <ColumnDefinition Width="2*" />
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
-                <TextBox Grid.Column="0" Name="RenameSaveName" Background ="GhostWhite" IsReadOnly="True" FontSize="12" Margin="10 0 10 0"/>
+                <TextBox Grid.Column="0" Name="RenameSaveName" Background="GhostWhite" IsReadOnly="True" FontSize="12" Margin="10 0 10 0"/>
                 <Button Grid.Column="1" Name="ApplyRename" Click="ApplyRename_Click" IsEnabled="False" Content="Apply" FontSize="12" Margin="10 0 10 0"/>
             </Grid>
 
@@ -97,7 +97,6 @@
                 </Grid.ColumnDefinitions>
                 <TextBlock Text="Saves" Margin="10 0 10 0" FontSize="12" Grid.ColumnSpan="2"/>
                 <ComboBox Grid.Column="0" IsEnabled="False" Name="saveDelList" Margin="10 0 10 0" FontSize="12" Grid.ColumnSpan="2">
-
                 </ComboBox>
                 <Button Grid.Column="2" Name="applyDelSave" IsEnabled="False" Click="ApplyDelSave_Click" Margin="10 0 10 0" Content="Apply" FontSize="12"/>
             </Grid>
@@ -121,7 +120,7 @@
                 </Grid.ColumnDefinitions>
                 <Button Grid.Column="0" Content="Save Scan" Name="StartSaveScan" IsEnabled="False" Click="SaveScan_Click" Margin="10 0 10 0"  FontSize="12"/>
                 <Button Grid.Column="1" Content="Settings" Name="SettingsButton" IsEnabled="False" Click="LaunchSettings_Click" Margin="10 0 10 0"  FontSize="12"/>
-                <Button Grid.Column="2" Content="Launch Game"  Click="LaunchGame_Click" Margin="10 0 10 0"  FontSize="12"/>
+                <Button Grid.Column="2" Content="Launch MGSV: TPP"  Click="LaunchGame_Click" Margin="10 0 10 0"  FontSize="12"/>
             </Grid>
 
             <!--Bottom items-->

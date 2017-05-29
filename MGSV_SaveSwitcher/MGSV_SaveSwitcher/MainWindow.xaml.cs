@@ -24,7 +24,6 @@ namespace MGSV_SaveSwitcher
     /// </summary>
     public partial class MainWindow : Window
     {
-
         MySteamScanner mySteamScan = new MySteamScanner();
         WebClient webReader = new WebClient();
         string branch = "Dev";
@@ -100,19 +99,25 @@ namespace MGSV_SaveSwitcher
         /// </summary>
         private void UpdateCheck()
         {
-            string webRelease = this.webReader.DownloadString($"https://raw.githubusercontent.com/thatsafy/MGSV_SaveManager/{this.branch}/latest.txt");
-            string[] temp = webRelease.Split('.');
-            string latest = "";
-            foreach (string x in temp)
+            try
             {
-                latest += x;
-            }
-            int version = Int32.Parse(latest);
+                string webRelease = this.webReader.DownloadString($"https://raw.githubusercontent.com/thatsafy/MGSV_SaveManager/{this.branch}/latest.txt");
+                string[] temp = webRelease.Split('.');
+                string latest = "";
+                foreach (string x in temp)
+                {
+                    latest += x;
+                }
+                int version = Int32.Parse(latest);
 
-            if (this.curVersion < version)
+                if (this.curVersion < version)
+                {
+                    this.UpdateMessage(webRelease);
+                    this.ToggleAlert();
+                }
+            } catch (Exception e)
             {
-                this.UpdateMessage(webRelease);
-                this.ToggleAlert();
+                Console.WriteLine($"Error while checking for updates.\nError: {e}");
             }
         }
 
@@ -412,7 +417,7 @@ namespace MGSV_SaveSwitcher
         /// <param name="e"></param>
         public void LaunchSettings_Click(object sender, RoutedEventArgs e)
         {
-            SettingsWindow settings = new SettingsWindow(this.currentUser.Text, this.steamPath.Text, this.mySteamScan.getUserID(this.currentUser.Text), this.currentSave.Text);
+            SettingsWindow settings = new SettingsWindow(this.currentUser.Text, this.steamPath.Text, this.mySteamScan.GetUserID(this.currentUser.Text), this.currentSave.Text);
             settings.Show();
             this.IsEnabled = false;
             settings.Closing += EnableMain;
