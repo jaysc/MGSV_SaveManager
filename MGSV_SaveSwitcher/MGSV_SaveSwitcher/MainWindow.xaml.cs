@@ -26,7 +26,7 @@ namespace MGSV_SaveSwitcher
     {
         MySteamScanner mySteamScan = new MySteamScanner();
         WebClient webReader = new WebClient();
-        string branch = "master";
+        string branch = "Dev";
         bool alertOnOff = false;
         string currentVersion = "2.3.1";
         int curVersion = 231;
