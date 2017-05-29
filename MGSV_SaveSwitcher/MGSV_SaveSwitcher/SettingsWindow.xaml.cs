@@ -55,6 +55,7 @@ namespace MGSV_SaveSwitcher
             {
                 Console.WriteLine($"Line: {line.Key} : {line.Value}");
             }
+            this.PresetBox.Text = "";
             this.depth_of_field.Text = settings["depth_of_field"];
             this.effect.Text = settings["effect"];
             this.lighting.Text = settings["lighting"];

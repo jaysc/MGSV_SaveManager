@@ -9,13 +9,13 @@ namespace SteamScan
     {
         private string localDir = "C:\\MGSV_saves";
         private string steamPath = "";
-        private List<string> userNames = new List<string>();
-        
         private string MGSV_Game = "steamapps\\common\\MGS_TPP\\mgsvtpp.exe";
         private string MGSV1 = "287700";
         private string MGSV2 = "311340";
-        private Dictionary<string, string> NameID = new Dictionary<string, string>();
+
         private List<string> MGSV_Saves = new List<string>();
+        private List<string> userNames = new List<string>();
+        private Dictionary<string, string> NameID = new Dictionary<string, string>();
         
 
         /// <summary>
@@ -55,7 +55,7 @@ namespace SteamScan
                 this.steamPath = File.ReadAllLines($"{this.localDir}\\steam_path.txt")[0];
                 Console.WriteLine("Steam path found");
                 return this.steamPath;
-            } catch 
+            } catch (IOException)
             {
                 Console.WriteLine("steam path not found, scanning...");
                 FirstRun();
@@ -80,7 +80,6 @@ namespace SteamScan
                 {
                     if (x.Contains("Steam.exe"))
                     {
-                       
                         this.steamPath = x.Replace("Steam.exe", "").Trim();
                         this.CommandPrompter($"dir /b {this.steamPath} > {this.localDir}\\tempdir.txt");
                         foreach (string y in File.ReadAllLines($"{this.localDir}\\tempdir.txt"))
@@ -93,7 +92,6 @@ namespace SteamScan
                                 return this.steamPath;
                             }
                         }
-                        
                     }
                 }
                 return "";
@@ -125,35 +123,42 @@ namespace SteamScan
         public Dictionary<string, string> UserScan()
         {
             Console.WriteLine("Scanning for users.");
-            string userScan = $"{this.steamPath[0]}: && cd {this.steamPath.Trim()}userdata && dir /b /AD > {this.localDir.Trim()}\\users.txt";
-            Console.WriteLine(userScan);
-            CommandPrompter(userScan);
+            string command = $"{this.steamPath[0]}: && cd {this.steamPath.Trim()}userdata && dir /b /AD > {this.localDir.Trim()}\\users.txt";
+            Console.WriteLine(command);
+            CommandPrompter(command);
             string[] users = File.ReadAllLines($"{this.localDir.Trim()}\\users.txt");
             foreach (string userid in users)
             {
                 if (userid != "anonymous")
                 {
-                    string[] userData = File.ReadAllLines($"{this.steamPath}\\userdata\\{userid}\\config\\localconfig.vdf");
-                    foreach (string line in userData)
+                    try
                     {
-                        if (line.Contains("PersonaName"))
+                        string[] userData = File.ReadAllLines($"{this.steamPath}\\userdata\\{userid}\\config\\localconfig.vdf");
+                        foreach (string line in userData)
                         {
-                            string username = line.Replace("PersonaName", "").Replace("		", "").Replace("\"", "").ToLower();
+                            if (line.Contains("PersonaName"))
+                            {
+                                string username = line.Replace("PersonaName", "").Replace("		", "").Replace("\"", "").ToLower();
 
-                            if (this.NameID.ContainsKey(username.ToLower()))
-                            {
-                                this.NameID.Add(username + "_", userid);
-                                this.userNames.Add(username + "_");
-                            } else
-                            {
-                                this.NameID.Add(username, userid);
-                                this.userNames.Add(username);
-                            }                            
+                                if (this.NameID.ContainsKey(username.ToLower()))
+                                {
+                                    this.NameID.Add(username + "_", userid);
+                                    this.userNames.Add(username + "_");
+                                }
+                                else
+                                {
+                                    this.NameID.Add(username, userid);
+                                    this.userNames.Add(username);
+                                }
+                            }
                         }
+                        Console.WriteLine("User scanned, found " + this.NameID.Count + " users.");
+                    } catch (IOException)
+                    {
+                        Console.WriteLine("localconfig.vdf not found.");
                     }
                 }
             }
-            Console.WriteLine("User scanned, found " + this.NameID.Count + " users.");
             return this.NameID;
         }
 
@@ -182,8 +187,8 @@ namespace SteamScan
             CommandPrompter(command);
             command = $"{this.localDir[0]}: && dir /b /AD {this.localDir}\\{username} > {this.localDir}\\{username}\\saves.txt";
             CommandPrompter(command);
-
             string[] saves_temp = File.ReadAllLines($"{this.localDir}\\{username}\\saves.txt");
+            
             Console.WriteLine("saves.txt read");
             List<string> saves = new List<string>();
             foreach (string x in saves_temp)
@@ -259,7 +264,7 @@ namespace SteamScan
             {
                 string currentsave = File.ReadAllLines($"{localDir}\\{username}\\current_save.txt")[0];
                 return currentsave.Trim();
-            } catch
+            } catch (IOException)
             {
                 string currentsave = "none";
                 string command = $"echo {currentsave} > {this.localDir}\\{username}\\current_save.txt";

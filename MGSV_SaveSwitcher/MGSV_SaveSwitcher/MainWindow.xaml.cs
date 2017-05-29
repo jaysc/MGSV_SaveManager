@@ -15,6 +15,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Diagnostics;
 using SteamScan;
+using System.Net;
 
 namespace MGSV_SaveSwitcher
 {
@@ -25,6 +26,10 @@ namespace MGSV_SaveSwitcher
     {
 
         MySteamScanner mySteamScan = new MySteamScanner();
+        WebClient webReader = new WebClient();
+        bool alertOnOff = false;
+        string currentVersion = "2.3.1";
+        string latestRelease = "";
 
         public MainWindow()
         {
@@ -85,6 +90,42 @@ namespace MGSV_SaveSwitcher
                 UserCheck();
             }
              
+        }
+
+
+        /// <summary>
+        /// Check if new version available
+        /// </summary>
+        private void UpdateCheck()
+        {
+            string latest = this.webReader.DownloadString("");
+            this.ToggleAlert();
+        }
+
+
+        /// <summary>
+        /// Toggle alert image and link
+        /// </summary>
+        private void ToggleAlert()
+        {
+            if (this.alertOnOff)
+            {
+                this.alertOnOff = false;
+                this.alertlink.IsEnabled = false;
+                this.alertimage.Visibility = Visibility.Hidden;
+            }
+            else
+            {
+                this.alertOnOff = true;
+                this.alertlink.IsEnabled = true;
+                this.alertimage.Visibility = Visibility.Visible;
+            }
+        }
+
+
+        private void UpdateMessage_Click(object sender, RoutedEventArgs e)
+        {
+            MessageBox.Show($"New version available.\nCurrent version: {this.currentVersion}\nLatest release: {this.latestRelease}");
         }
 
 
