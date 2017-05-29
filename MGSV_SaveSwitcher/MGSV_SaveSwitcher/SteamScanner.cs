@@ -38,7 +38,7 @@ namespace SteamScan
         /// </summary>
         /// <param name="username"></param>
         /// <returns></returns>
-        public string getUserID(string username)
+        public string GetUserID(string username)
         {
             return this.NameID[username];
         }
@@ -106,10 +106,12 @@ namespace SteamScan
         private void CommandPrompter(string command)
         {
             System.Diagnostics.Process process = new System.Diagnostics.Process();
-            System.Diagnostics.ProcessStartInfo startInfo = new System.Diagnostics.ProcessStartInfo();
-            startInfo.WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden;
-            startInfo.FileName = "cmd.exe";
-            startInfo.Arguments = $"/C {command}";
+            System.Diagnostics.ProcessStartInfo startInfo = new System.Diagnostics.ProcessStartInfo()
+            {
+                WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden,
+                FileName = "cmd.exe",
+                Arguments = $"/C {command}"
+            };
             process.StartInfo = startInfo;
             process.Start();
             process.WaitForExit();
@@ -126,40 +128,48 @@ namespace SteamScan
             string command = $"{this.steamPath[0]}: && cd {this.steamPath.Trim()}userdata && dir /b /AD > {this.localDir.Trim()}\\users.txt";
             Console.WriteLine(command);
             CommandPrompter(command);
-            string[] users = File.ReadAllLines($"{this.localDir.Trim()}\\users.txt");
-            foreach (string userid in users)
-            {
-                if (userid != "anonymous")
+            try { 
+                string[] users = File.ReadAllLines($"{this.localDir.Trim()}\\users.txt");
+                foreach (string userid in users)
                 {
-                    try
+                    if (userid != "anonymous")
                     {
-                        string[] userData = File.ReadAllLines($"{this.steamPath}\\userdata\\{userid}\\config\\localconfig.vdf");
-                        foreach (string line in userData)
+                        try
                         {
-                            if (line.Contains("PersonaName"))
+                            string[] userData = File.ReadAllLines($"{this.steamPath}\\userdata\\{userid}\\config\\localconfig.vdf");
+                            foreach (string line in userData)
                             {
-                                string username = line.Replace("PersonaName", "").Replace("		", "").Replace("\"", "").ToLower();
+                                if (line.Contains("PersonaName"))
+                                {
+                                    string username = line.Replace("PersonaName", "").Replace("		", "").Replace("\"", "").ToLower();
 
-                                if (this.NameID.ContainsKey(username.ToLower()))
-                                {
-                                    this.NameID.Add(username + "_", userid);
-                                    this.userNames.Add(username + "_");
-                                }
-                                else
-                                {
-                                    this.NameID.Add(username, userid);
-                                    this.userNames.Add(username);
+                                    if (this.NameID.ContainsKey(username.ToLower()))
+                                    {
+                                        this.NameID.Add(username + "_", userid);
+                                        this.userNames.Add(username + "_");
+                                    }
+                                    else
+                                    {
+                                        this.NameID.Add(username, userid);
+                                        this.userNames.Add(username);
+                                    }
                                 }
                             }
+                            Console.WriteLine("User scanned, found " + this.NameID.Count + " users.");
                         }
-                        Console.WriteLine("User scanned, found " + this.NameID.Count + " users.");
-                    } catch (IOException)
-                    {
-                        Console.WriteLine("localconfig.vdf not found.");
+                        catch (IOException)
+                        {
+                            Console.WriteLine("localconfig.vdf not found.");
+                        }
                     }
                 }
+                return this.NameID;
+            } catch (IOException e)
+            {
+                Console.WriteLine($"Error: {e}");
+                return this.NameID;
             }
-            return this.NameID;
+            
         }
 
 

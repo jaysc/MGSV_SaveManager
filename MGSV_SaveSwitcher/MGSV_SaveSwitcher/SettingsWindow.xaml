@@ -11,7 +11,8 @@
     <Border Padding="10,20,10,10">
         <StackPanel>
             <TextBlock Text="Settings" FontWeight="Bold" HorizontalAlignment="Center" FontSize="14"/>
-            <TextBox Name="CurrentUserSettings" Text="Current user" Margin="50 10 50 5" Padding="0 1 0 1" IsReadOnly="True" Background="GhostWhite" FontSize="12" VerticalContentAlignment="Center" HorizontalContentAlignment="Center"/>
+            
+            <TextBox Name="CurrentUserSettings" Text="Current user" Margin="50 10 50 5" Padding="0 1 0 1" IsReadOnly="True" Background="GhostWhite" FontSize="12" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" />
             <TextBox Name="CurrentSaveSettings" Text="Current save" Margin="50 0 50 15" Padding="0 1 0 1" IsReadOnly="True" Background="GhostWhite" FontSize="12" VerticalContentAlignment="Center" HorizontalContentAlignment="Center"/>
             <!--Resolution and Preset-->
             <Grid>

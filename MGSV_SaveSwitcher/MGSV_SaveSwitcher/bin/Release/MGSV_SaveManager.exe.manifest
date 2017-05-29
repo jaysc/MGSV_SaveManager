@@ -43,14 +43,14 @@
     </dependentAssembly>
   </dependency>
   <dependency>
-    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="MGSV_SaveManager.exe" size="76768">
+    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="MGSV_SaveManager.exe" size="77280">
       <assemblyIdentity name="MGSV_SaveManager" version="1.0.0.0" language="neutral" processorArchitecture="msil" />
       <hash>
         <dsig:Transforms>
           <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
         </dsig:Transforms>
         <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-        <dsig:DigestValue>/a3eux9AbhShQYSP8YPxFftEW9Jd/5uk0qSSTQDnKFU=</dsig:DigestValue>
+        <dsig:DigestValue>0R9TvdPhBqCCfSoPmVjh/Ii6ZlrBTtJJkWZgNVyDvUA=</dsig:DigestValue>
       </hash>
     </dependentAssembly>
   </dependency>
