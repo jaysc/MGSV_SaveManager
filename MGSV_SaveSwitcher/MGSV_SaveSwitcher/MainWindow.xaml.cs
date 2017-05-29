@@ -27,15 +27,17 @@ namespace MGSV_SaveSwitcher
 
         MySteamScanner mySteamScan = new MySteamScanner();
         WebClient webReader = new WebClient();
+        string branch = "Dev";
         bool alertOnOff = false;
         string currentVersion = "2.3.1";
-        string latestRelease = "";
+        int curVersion = 231;
 
         public MainWindow()
         {
             InitializeComponent();
             SaveManager();
             Closing += MainWindow_Closing;
+            this.UpdateCheck();
         }
 
 
@@ -61,7 +63,7 @@ namespace MGSV_SaveSwitcher
             if (steamPath == "")
             {
                 MessageBox.Show("Steam not found, if you are sure it's installed and keep getting this message, please make an bug report to the GitHub project page.");
-                return;
+                App.Current.Shutdown();
             }
             this.steamPath.Text = steamPath;
 
@@ -98,8 +100,20 @@ namespace MGSV_SaveSwitcher
         /// </summary>
         private void UpdateCheck()
         {
-            string latest = this.webReader.DownloadString("");
-            this.ToggleAlert();
+            string webRelease = this.webReader.DownloadString($"https://raw.githubusercontent.com/thatsafy/MGSV_SaveManager/{this.branch}/latest.txt");
+            string[] temp = webRelease.Split('.');
+            string latest = "";
+            foreach (string x in temp)
+            {
+                latest += x;
+            }
+            int version = Int32.Parse(latest);
+
+            if (this.curVersion < version)
+            {
+                this.UpdateMessage(webRelease);
+                this.ToggleAlert();
+            }
         }
 
 
@@ -122,10 +136,13 @@ namespace MGSV_SaveSwitcher
             }
         }
 
-
-        private void UpdateMessage_Click(object sender, RoutedEventArgs e)
+        /// <summary>
+        /// Popup message if new release
+        /// </summary>
+        /// <param name="release"></param>
+        private void UpdateMessage(string release)
         {
-            MessageBox.Show($"New version available.\nCurrent version: {this.currentVersion}\nLatest release: {this.latestRelease}");
+            MessageBox.Show($"New release available.\nCurrent release: {this.currentVersion}\nLatest release: {release}");
         }
 
 
