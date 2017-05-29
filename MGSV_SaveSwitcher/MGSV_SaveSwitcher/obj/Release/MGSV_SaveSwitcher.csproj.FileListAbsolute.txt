@@ -28,3 +28,8 @@ E:\Tiedostot\GitHub\MGSV_Save_Switcher\MGSV_SaveSwitcher\MGSV_SaveSwitcher\obj\R
 E:\Tiedostot\GitHub\MGSV_Save_Switcher\MGSV_SaveSwitcher\MGSV_SaveSwitcher\obj\Release\MGSV_SaveSwitcher.pdb
 E:\Tiedostot\GitHub\MGSV_Save_Switcher\MGSV_SaveSwitcher\MGSV_SaveSwitcher\obj\Release\SettingsWindow.g.cs
 E:\Tiedostot\GitHub\MGSV_Save_Switcher\MGSV_SaveSwitcher\MGSV_SaveSwitcher\obj\Release\SettingsWindow.baml
+E:\Tiedostot\GitHub\MGSV_Save_Switcher\MGSV_SaveSwitcher\MGSV_SaveSwitcher\bin\Release\MGSV_SaveSwitcher.exe.manifest
+E:\Tiedostot\GitHub\MGSV_Save_Switcher\MGSV_SaveSwitcher\MGSV_SaveSwitcher\bin\Release\MGSV_SaveSwitcher.application
+E:\Tiedostot\GitHub\MGSV_Save_Switcher\MGSV_SaveSwitcher\MGSV_SaveSwitcher\obj\Release\MGSV_SaveSwitcher.TrustInfo.xml
+E:\Tiedostot\GitHub\MGSV_Save_Switcher\MGSV_SaveSwitcher\MGSV_SaveSwitcher\obj\Release\MGSV_SaveSwitcher.exe.manifest
+E:\Tiedostot\GitHub\MGSV_Save_Switcher\MGSV_SaveSwitcher\MGSV_SaveSwitcher\obj\Release\MGSV_SaveSwitcher.application

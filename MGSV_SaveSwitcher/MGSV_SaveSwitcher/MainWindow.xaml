@@ -71,7 +71,7 @@
                     <ColumnDefinition Width="2*" />
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
-                <TextBox Grid.Column="0" Name="RenameSaveName" Background ="LightGray" IsReadOnly="True" FontSize="12" Margin="10 0 10 0"/>
+                <TextBox Grid.Column="0" Name="RenameSaveName" Background ="GhostWhite" IsReadOnly="True" FontSize="12" Margin="10 0 10 0"/>
                 <Button Grid.Column="1" Name="ApplyRename" Click="ApplyRename_Click" IsEnabled="False" Content="Apply" FontSize="12" Margin="10 0 10 0"/>
             </Grid>
 
@@ -82,7 +82,7 @@
                     <ColumnDefinition Width="2*" />
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
-                <TextBox Grid.Column="0" Name="newSaveName" Background ="LightGray" IsReadOnly="True" FontSize="12" Margin="10 0 10 0"/>
+                <TextBox Grid.Column="0" Name="newSaveName" Background ="GhostWhite" IsReadOnly="True" FontSize="12" Margin="10 0 10 0"/>
                 <Button Grid.Column="1" Name="applyNewSaveName" IsEnabled="False" Click="ApplyNewSaveName_Click" Content="Apply" FontSize="12" Margin="10 0 10 0"/>
             </Grid>
 
@@ -109,7 +109,7 @@
                     <ColumnDefinition Width="3*" />
                 </Grid.ColumnDefinitions>
                 <TextBlock Text="Steam directory" FontSize="12" Margin="10 0 10 0" FontWeight="Bold" HorizontalAlignment="Left"/>
-                <TextBox Grid.Column="1" Name="steamPath" IsReadOnly="True" Background="LightGray" FontSize="12" Margin="10 0 10 0" />
+                <TextBox Grid.Column="1" Name="steamPath" IsReadOnly="True" Background="GhostWhite" FontSize="12" Margin="10 0 10 0" />
             </Grid>
 
             <!--Miscellanious buttons-->
@@ -128,7 +128,9 @@
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="2*"/>
+                    <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
                 <TextBlock Grid.Column="0" HorizontalAlignment="Left" Margin="15 10 10 0">
@@ -136,8 +138,13 @@
                         <Image Source="GitHub-Mark.png" Width="45" />
                     </Hyperlink>
                 </TextBlock>
-                <TextBlock Grid.Column="1"  Text="Antti Alasalmi 2017" FontSize="12" Margin="10 20 10 0" FontWeight="Bold" HorizontalAlignment="Center"/>
-                <TextBlock Grid.Column="2" HorizontalAlignment="Right" Margin="10 10 15 0">
+                <TextBlock Grid.Column="1" HorizontalAlignment="Left" Margin="15 10 10 0">
+                    <Hyperlink Name="alertlink" IsEnabled="False" TextDecorations="None" NavigateUri="https://github.com/thatsafy/MGSV_Save_Switcher/releases" RequestNavigate="Hyperlink_RequestNavigate">
+                        <Image Name="alertimage" Visibility="Hidden" Source="savemanager.ico" Width="45" />
+                    </Hyperlink>
+                </TextBlock>
+                <TextBlock Grid.Column="2"  Text="Antti Alasalmi 2017" FontSize="12" Margin="10 20 10 0" FontWeight="Bold" HorizontalAlignment="Center"/>
+                <TextBlock Grid.Column="4" HorizontalAlignment="Right" Margin="10 10 15 0">
                     <Hyperlink TextDecorations="None" NavigateUri="https://twitter.com/Thatsafy" RequestNavigate="Hyperlink_RequestNavigate">
                         <Image Source="Twitter.png" Width="45" />
                     </Hyperlink>
