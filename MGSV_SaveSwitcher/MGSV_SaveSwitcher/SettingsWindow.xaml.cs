@@ -1,18 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 using System.IO;
-using System.Reflection;
+using SteamScan;
 
 namespace MGSV_SaveSwitcher
 {
@@ -28,49 +20,51 @@ namespace MGSV_SaveSwitcher
         string steamConfigPath;
         private bool handle = true;
         Dictionary<string, string> graphicSettings = new Dictionary<string, string>();
-        
+        MySteamScanner SteamScanner = new MySteamScanner();
 
-        public SettingsWindow(string currentUser, string steamPath, string userid, string currentSave)
+        public SettingsWindow()
         {
             InitializeComponent();
-            this.CurrentUserSettings.Text = currentUser;
-            this.steampath = steamPath;
-            this.userid = userid;
-            this.currentSave = currentSave;
-            this.CurrentSaveSettings.Text = currentSave;
-            this.localPath += this.CurrentUserSettings.Text + "\\";
-            this.steamConfigPath = $"{this.steampath.Trim()}userdata\\{this.userid.Trim()}\\287700\\local\\TPP_GRAPHICS_CONFIG";
-            this.LoadSettings(this.graphicSettings);
+            
+            try
+            {
+                this.steampath = this.SteamScanner.ScanSteam();
+                this.CurrentUserSettings.Text = this.SteamScanner.GetCurrentUser();
+                this.userid = this.SteamScanner.GetCurrentID();
+                this.currentSave = this.SteamScanner.CurrentSave(this.CurrentUserSettings.Text);
+                this.localPath += this.CurrentUserSettings.Text + "\\";
+                this.steamConfigPath = $"{this.steampath.Trim()}userdata\\{this.userid.Trim()}\\287700\\local\\TPP_GRAPHICS_CONFIG";
+                this.LoadSettings();
+            } catch
+            {
+                MessageBox.Show("Please select user first from the 'Saves' menu.");
+                this.Close();
+            }
         }
-
+        
 
         /// <summary>
         /// Load the settings from the file
         /// </summary>
-        private void LoadSettings(Dictionary<string, string> settings)
+        private void LoadSettings()
         {
-            settings = this.LoadSettingsFromFile(settings, this.steamConfigPath);
-
-            foreach (KeyValuePair<string, string> line in this.graphicSettings)
-            {
-                Console.WriteLine($"Line: {line.Key} : {line.Value}");
-            }
+            this.LoadSettingsFromFile();
             this.PresetBox.Text = "";
-            this.depth_of_field.Text = settings["depth_of_field"];
-            this.effect.Text = settings["effect"];
-            this.lighting.Text = settings["lighting"];
-            this.model_detail.Text = settings["model_detail"];
-            this.motion_blur_amount.Text = settings["motion_blur_amount"];
-            this.postprocess.Text = settings["postprocess"];
-            this.shadow.Text = settings["shadow"];
-            this.ssao.Text = settings["ssao"];
-            this.texture.Text = settings["texture"];
-            this.texture_filtering.Text = settings["texture_filtering"];
-            this.volumetric_clouds.Text = settings["volumetric_clouds"];
-            this.framerate_control.Text = settings["framerate_control"];
-            this.vsync.Text = settings["vsync"];
-            this.window_mode.Text = settings["window_mode"];
-            this.ResolutionBox.Text = settings["width"] + "x" + settings["height"];
+            this.depth_of_field.Text = this.graphicSettings["depth_of_field"];
+            this.effect.Text = this.graphicSettings["effect"];
+            this.lighting.Text = this.graphicSettings["lighting"];
+            this.model_detail.Text = this.graphicSettings["model_detail"];
+            this.motion_blur_amount.Text = this.graphicSettings["motion_blur_amount"];
+            this.postprocess.Text = this.graphicSettings["postprocess"];
+            this.shadow.Text = this.graphicSettings["shadow"];
+            this.ssao.Text = this.graphicSettings["ssao"];
+            this.texture.Text = this.graphicSettings["texture"];
+            this.texture_filtering.Text = this.graphicSettings["texture_filtering"];
+            this.volumetric_clouds.Text = this.graphicSettings["volumetric_clouds"];
+            this.framerate_control.Text = this.graphicSettings["framerate_control"];
+            this.vsync.Text = this.graphicSettings["vsync"];
+            this.window_mode.Text = this.graphicSettings["window_mode"];
+            this.ResolutionBox.Text = this.graphicSettings["width"] + "x" + this.graphicSettings["height"];
         }
 
 
@@ -93,7 +87,7 @@ namespace MGSV_SaveSwitcher
             this.framerate_control.Text = "Auto";
             this.vsync.Text = "Enable";
             this.window_mode.Text = "FullScreenWindowed";
-            this.ResolutionBox.Text = "1920" + "x" + "1080";
+            ///this.ResolutionBox.Text = "1920" + "x" + "1080";
         }
 
 
@@ -116,7 +110,7 @@ namespace MGSV_SaveSwitcher
             this.framerate_control.Text = "Auto";
             this.vsync.Text = "Enable";
             this.window_mode.Text = "FullScreenWindowed";
-            this.ResolutionBox.Text = "1920" + "x" + "1080";
+            ///this.ResolutionBox.Text = "1920" + "x" + "1080";
         }
 
 
@@ -139,7 +133,7 @@ namespace MGSV_SaveSwitcher
             this.framerate_control.Text = "Auto";
             this.vsync.Text = "Enable";
             this.window_mode.Text = "FullScreenWindowed";
-            this.ResolutionBox.Text = "1920" + "x" + "1080";
+            ///this.ResolutionBox.Text = "1920" + "x" + "1080";
         }
 
 
@@ -162,7 +156,7 @@ namespace MGSV_SaveSwitcher
             this.framerate_control.Text = "Auto";
             this.vsync.Text = "Enable";
             this.window_mode.Text = "FullScreenWindowed";
-            this.ResolutionBox.Text = "1920" + "x" + "1080";
+            ///this.ResolutionBox.Text = "1920" + "x" + "1080";
 
         }
 
@@ -226,24 +220,23 @@ namespace MGSV_SaveSwitcher
         /// Load settings to the graphics settings dictionary from file
         /// </summary>
         /// <param name="settings"></param>
-        public Dictionary<string, string> LoadSettingsFromFile(Dictionary<string, string> settings, string path)
+        public void LoadSettingsFromFile()
         {
-            settings = new Dictionary<string, string>();
-            string[] settingsSteam = File.ReadAllLines(path);
+            this.graphicSettings = new Dictionary<string, string>();
+            string[] settingsSteam = File.ReadAllLines(this.steamConfigPath);
 
             for (int i = 4; i < 15; i++)
             {
-                string key = settingsSteam[i].Replace(" ", "").Replace("\"", "").Split(':')[0];
-                string value = settingsSteam[i].Replace(" ", "").Replace("\"", "").Split(':')[1].Replace(",", "");
-                settings.Add(key, value);
+                string key = settingsSteam[i].Replace(" ", "").Replace("\"", "").Trim().Split(':')[0];
+                string value = settingsSteam[i].Replace(" ", "").Replace("\"", "").Trim().Split(':')[1].Replace(",", "");
+                this.graphicSettings.Add(key, value);
             }
             for (int i = 18; i < 24; i++)
             {
-                string key = settingsSteam[i].Replace(" ", "").Replace("\"", "").Split(':')[0];
-                string value = settingsSteam[i].Replace(" ", "").Replace("\"", "").Split(':')[1].Replace(",", "");
-                settings.Add(key, value);
+                string key = settingsSteam[i].Replace(" ", "").Replace("\"", "").Trim().Split(':')[0];
+                string value = settingsSteam[i].Replace(" ", "").Replace("\"", "").Trim().Split(':')[1].Replace(",", "");
+                this.graphicSettings.Add(key, value);
             }
-            return settings;
         }
 
         /// <summary>
@@ -291,6 +284,7 @@ namespace MGSV_SaveSwitcher
                     }
                 }
             }
+
             foreach (string x in temp_settings)
             {
                 Console.WriteLine(x);
@@ -321,30 +315,29 @@ namespace MGSV_SaveSwitcher
         /// <param name="e"></param>
         private void ApplySettings_Click(object sender, RoutedEventArgs e)
         {
-
-            Dictionary<string, string> settingslist = new Dictionary<string, string>();
-
-            settingslist.Add("depth_of_field", this.depth_of_field.Text);
-            settingslist.Add("effect", this.effect.Text);
-            settingslist.Add("lighting", this.lighting.Text);
-            settingslist.Add("model_detail", this.model_detail.Text);
-            settingslist.Add("motion_blur_amount", this.motion_blur_amount.Text);
-            settingslist.Add("postprocess", this.postprocess.Text);
-            settingslist.Add("shadow", this.shadow.Text);
-            settingslist.Add("ssao", this.ssao.Text);
-            settingslist.Add("texture", this.texture.Text);
-            settingslist.Add("texture_filtering", this.texture_filtering.Text);
-            settingslist.Add("volumetric_clouds", this.volumetric_clouds.Text);
-            settingslist.Add("vsync", this.vsync.Text);
-            settingslist.Add("window_mode", this.window_mode.Text);
-            settingslist.Add("width", this.ResolutionBox.Text.Split('x')[0]);
-            settingslist.Add("height", this.ResolutionBox.Text.Split('x')[1]);
-            settingslist.Add("framerate_control", this.framerate_control.Text);
-
-            /// Save settings and copy to the currently used save
+            /// Get settings from the dropdown menus
+            Dictionary<string, string> settingslist = new Dictionary<string, string>
+            {
+                { "depth_of_field", this.depth_of_field.Text },
+                { "effect", this.effect.Text },
+                { "lighting", this.lighting.Text },
+                { "model_detail", this.model_detail.Text },
+                { "motion_blur_amount", this.motion_blur_amount.Text },
+                { "postprocess", this.postprocess.Text },
+                { "shadow", this.shadow.Text },
+                { "ssao", this.ssao.Text },
+                { "texture", this.texture.Text },
+                { "texture_filtering", this.texture_filtering.Text },
+                { "volumetric_clouds", this.volumetric_clouds.Text },
+                { "vsync", this.vsync.Text },
+                { "window_mode", this.window_mode.Text },
+                { "width", this.ResolutionBox.Text.Split('x')[0] },
+                { "height", this.ResolutionBox.Text.Split('x')[1]},
+                { "framerate_control", this.framerate_control.Text }
+            };
+            /// Save settings and copy to the currently used save, close window
             this.SaveSettings(settingslist);
-            this.LoadSettingsFromFile(this.graphicSettings, this.steamConfigPath);
-
+            this.LoadSettingsFromFile();
             this.Close();
         }
 
@@ -356,7 +349,7 @@ namespace MGSV_SaveSwitcher
         /// <param name="e"></param>
         private void Revert_Click(object sender, RoutedEventArgs e)
         {
-            this.LoadSettings(this.graphicSettings);
+            this.LoadSettings();
         }
 
 
@@ -367,14 +360,15 @@ namespace MGSV_SaveSwitcher
         private void CommandPrompter(string command)
         {
             System.Diagnostics.Process process = new System.Diagnostics.Process();
-            System.Diagnostics.ProcessStartInfo startInfo = new System.Diagnostics.ProcessStartInfo();
-            startInfo.WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden;
-            startInfo.FileName = "cmd.exe";
-            startInfo.Arguments = $"/C {command}";
+            System.Diagnostics.ProcessStartInfo startInfo = new System.Diagnostics.ProcessStartInfo()
+            {
+                WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden,
+                FileName = "cmd.exe",
+                Arguments = $"/C {command}"
+            };
             process.StartInfo = startInfo;
             process.Start();
             process.WaitForExit();
         }
-
     }
 }

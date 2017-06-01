@@ -2,20 +2,11 @@
 using System.IO;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
-using System.Windows.Shapes;
 using System.Diagnostics;
 using SteamScan;
-using System.Net;
 
 namespace MGSV_SaveSwitcher
 {
@@ -24,30 +15,19 @@ namespace MGSV_SaveSwitcher
     /// </summary>
     public partial class MainWindow : Window
     {
-        MySteamScanner mySteamScan = new MySteamScanner();
-        WebClient webReader = new WebClient();
-        string branch = "master";
-        bool alertOnOff = false;
-        string currentVersion = "2.3.1";
-        int curVersion = 231;
+        MySteamScanner mySteamScan;
+        string steampath = "";
+        Dictionary<string, string> username;
 
-        public MainWindow()
+        public MainWindow(MySteamScanner mySteamScan)
         {
             InitializeComponent();
+            this.mySteamScan = mySteamScan;
+            
+            this.steampath = this.mySteamScan.ScanSteam();
+            Console.WriteLine(this.steampath);
+
             SaveManager();
-            Closing += MainWindow_Closing;
-            this.UpdateCheck();
-        }
-
-
-        /// <summary>
-        /// Closing main window closes entire application
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void MainWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
-        {
-            App.Current.Shutdown();
         }
 
 
@@ -57,97 +37,56 @@ namespace MGSV_SaveSwitcher
         private void SaveManager()
         {
             Console.WriteLine("Starting steam scan");
-            string steamPath = this.mySteamScan.ScanSteam();
 
-            if (steamPath == "")
+            if (this.steampath == "")
             {
                 MessageBox.Show("Steam not found, if you are sure it's installed and keep getting this message, please make an bug report to the GitHub project page.");
-                App.Current.Shutdown();
+                this.Close();
             }
-            this.steamPath.Text = steamPath;
+            this.steamPath.Text = this.steampath;
+
 
             Console.WriteLine("Getting usernames and IDs");
-            Dictionary<string, string> username = this.mySteamScan.UserScan();
+            this.username = this.mySteamScan.UserScan();
             Console.WriteLine(username);
 
-            foreach (KeyValuePair<string, string> x in username)
+            foreach (KeyValuePair<string, string> x in this.username)
             {
                 Console.WriteLine(x.Key + " " + x.Value);
                 this.userList.Items.Add(x.Key);
             }
 
-            Console.WriteLine("Check if less than 2 users");
-            Console.WriteLine(username.Count);
-            if (username.Count < 2)
-            {
-                this.currentUser.Text = username.Keys.First();
-                this.currentSave.Text = this.mySteamScan.CurrentSave(this.currentUser.Text);
-
-                UserCheck();
-            } else
-            {
-                this.userList.IsEnabled = true;
-                this.applyUser.IsEnabled = true;
-                UserCheck();
-            }
-             
-        }
-
-
-        /// <summary>
-        /// Check if new version available
-        /// </summary>
-        private void UpdateCheck()
-        {
             try
             {
-                string webRelease = this.webReader.DownloadString($"https://raw.githubusercontent.com/thatsafy/MGSV_SaveManager/{this.branch}/latest.txt");
-                string[] temp = webRelease.Split('.');
-                string latest = "";
-                foreach (string x in temp)
+                string[] filedata = File.ReadAllLines($"{this.mySteamScan.localDir}\\currentuser.txt");
+                this.currentUser.Text = filedata[0].Trim();
+                this.currentSave.Text = this.mySteamScan.CurrentSave(this.currentSave.Text);
+                if (this.username.Count > 2)
                 {
-                    latest += x;
+                    this.userList.IsEnabled = true;
+                    this.applyUser.IsEnabled = true;
                 }
-                int version = Int32.Parse(latest);
-
-                if (this.curVersion < version)
+                Console.WriteLine("Read current user from a file");
+                UserCheck();
+            } catch
+            {
+                Console.WriteLine("Check if less than 2 users");
+                Console.WriteLine(username.Count);
+                if (this.username.Count < 2)
                 {
-                    this.UpdateMessage(webRelease);
-                    this.ToggleAlert();
+                    this.currentUser.Text = username.Keys.First();
+                    this.currentSave.Text = this.mySteamScan.CurrentSave(this.currentUser.Text);
+                    this.mySteamScan.CurrentUser(this.currentUser.Text, this.username[this.currentUser.Text]);
+                    UserCheck();
                 }
-            } catch (Exception e)
-            {
-                Console.WriteLine($"Error while checking for updates.\nError: {e}");
+                else
+                {
+                    this.userList.IsEnabled = true;
+                    this.applyUser.IsEnabled = true;
+                    UserCheck();
+                }
             }
-        }
-
-
-        /// <summary>
-        /// Toggle alert image and link
-        /// </summary>
-        private void ToggleAlert()
-        {
-            if (this.alertOnOff)
-            {
-                this.alertOnOff = false;
-                this.alertlink.IsEnabled = false;
-                this.alertimage.Visibility = Visibility.Hidden;
-            }
-            else
-            {
-                this.alertOnOff = true;
-                this.alertlink.IsEnabled = true;
-                this.alertimage.Visibility = Visibility.Visible;
-            }
-        }
-
-        /// <summary>
-        /// Popup message if new release
-        /// </summary>
-        /// <param name="release"></param>
-        private void UpdateMessage(string release)
-        {
-            MessageBox.Show($"New release available.\nCurrent release: {this.currentVersion}\nLatest release: {release}");
+            
         }
 
 
@@ -168,7 +107,6 @@ namespace MGSV_SaveSwitcher
                 this.newSaveName.Background = Brushes.White;
                 this.applyNewSaveName.IsEnabled = true;
                 this.StartSaveScan.IsEnabled = true;
-                this.SettingsButton.IsEnabled = true;
 
                 return true;
             }
@@ -255,6 +193,7 @@ namespace MGSV_SaveSwitcher
 
             this.userList.Text = "";
             this.currentUser.Text = userSelection;
+            this.mySteamScan.CurrentUser(this.currentUser.Text, this.username[this.currentUser.Text]);
 
             if (previousUser != "")
             {
@@ -400,31 +339,6 @@ namespace MGSV_SaveSwitcher
 
 
         /// <summary>
-        /// Launch The Phantom Pain
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void LaunchGame_Click(object sender, RoutedEventArgs e)
-        {
-            this.mySteamScan.LaunchGame();
-        }
-
-
-        /// <summary>
-        /// Launch graphics window
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        public void LaunchSettings_Click(object sender, RoutedEventArgs e)
-        {
-            SettingsWindow settings = new SettingsWindow(this.currentUser.Text, this.steamPath.Text, this.mySteamScan.GetUserID(this.currentUser.Text), this.currentSave.Text);
-            settings.Show();
-            this.IsEnabled = false;
-            settings.Closing += EnableMain;
-        }
-
-
-        /// <summary>
         /// Disable main window elements when settings window is open.
         /// </summary>
         /// <param name="sender"></param>
@@ -432,6 +346,11 @@ namespace MGSV_SaveSwitcher
         private void EnableMain(object sender, System.ComponentModel.CancelEventArgs e)
         {
             this.IsEnabled = true;
+        }
+
+        private void BackWindow_Click(object sender, RoutedEventArgs e)
+        {
+            this.Close();
         }
     }
 }

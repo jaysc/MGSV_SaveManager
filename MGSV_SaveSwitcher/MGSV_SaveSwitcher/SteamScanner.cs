@@ -1,13 +1,12 @@
 ﻿using System;
 using System.IO;
-using System.Text;
 using System.Collections.Generic;
 
 namespace SteamScan
 {
     public class MySteamScanner
     {
-        private string localDir = "C:\\MGSV_saves";
+        public string localDir = "C:\\MGSV_saves";
         private string steamPath = "";
         private string MGSV_Game = "steamapps\\common\\MGS_TPP\\mgsvtpp.exe";
         private string MGSV1 = "287700";
@@ -81,7 +80,7 @@ namespace SteamScan
                     if (x.Contains("Steam.exe"))
                     {
                         this.steamPath = x.Replace("Steam.exe", "").Trim();
-                        this.CommandPrompter($"dir /b {this.steamPath} > {this.localDir}\\tempdir.txt");
+                        this.CommandPrompter($"dir /b {this.steamPath}>{this.localDir}\\tempdir.txt");
                         foreach (string y in File.ReadAllLines($"{this.localDir}\\tempdir.txt"))
                         {
                             if (y.Contains("userdata"))
@@ -124,6 +123,8 @@ namespace SteamScan
         /// <returns></returns>
         public Dictionary<string, string> UserScan()
         {
+            this.userNames = new List<string>();
+            this.NameID = new Dictionary<string, string>();
             Console.WriteLine("Scanning for users.");
             string command = $"{this.steamPath[0]}: && cd {this.steamPath.Trim()}userdata && dir /b /AD > {this.localDir.Trim()}\\users.txt";
             Console.WriteLine(command);
@@ -142,8 +143,8 @@ namespace SteamScan
                                 if (line.Contains("PersonaName"))
                                 {
                                     string username = line.Replace("PersonaName", "").Replace("		", "").Replace("\"", "").ToLower();
-
-                                    if (this.NameID.ContainsKey(username.ToLower()))
+                                    Console.WriteLine(username);
+                                    if (this.NameID.ContainsKey(username))
                                     {
                                         this.NameID.Add(username + "_", userid);
                                         this.userNames.Add(username + "_");
@@ -169,7 +170,6 @@ namespace SteamScan
                 Console.WriteLine($"Error: {e}");
                 return this.NameID;
             }
-            
         }
 
 
@@ -235,10 +235,26 @@ namespace SteamScan
         public void SteamToLocal(string currentSave, string username)
         {
             Console.WriteLine("Steam to local starting");
-            string command = $"xcopy /E /Y {this.steamPath.Trim()}userdata\\{this.NameID[username].Trim()}\\{this.MGSV1} {localDir}\\{username}\\{currentSave}\\{this.MGSV1} 2> nul";
+            Console.WriteLine(this.steamPath);
+            string command;
+            try
+            {
+                command = $"xcopy /E /Y {this.steamPath.Trim()}userdata\\{this.NameID[username].Trim()}\\{this.MGSV1} {localDir}\\{username}\\{currentSave}\\{this.MGSV1} 2> nul";
+            } catch
+            {
+                command = $"xcopy /E /Y {this.steamPath.Trim()}userdata\\{this.GetCurrentID().Trim()}\\{this.MGSV1} {localDir}\\{username}\\{currentSave}\\{this.MGSV1} 2> nul";
+            }
+            
             Console.WriteLine(command);
             this.CommandPrompter(command);
-            command = $"xcopy /E /Y {this.steamPath.Trim()}userdata\\{this.NameID[username].Trim()}\\{this.MGSV2} {localDir}\\{username}\\{currentSave}\\{this.MGSV2} 2> nul";
+            try
+            {
+                command = $"xcopy /E /Y {this.steamPath.Trim()}userdata\\{this.NameID[username].Trim()}\\{this.MGSV2} {localDir}\\{username}\\{currentSave}\\{this.MGSV2} 2> nul";
+            } catch
+            {
+                command = $"xcopy /E /Y {this.steamPath.Trim()}userdata\\{this.GetCurrentID().Trim()}\\{this.MGSV2} {localDir}\\{username}\\{currentSave}\\{this.MGSV2} 2> nul";
+            }
+            
             Console.WriteLine(command);
             this.CommandPrompter(command);
             Console.WriteLine("Steam to local completed");
@@ -253,6 +269,7 @@ namespace SteamScan
         public void LocalToSteam(string currentSave, string username)
         {
             Console.WriteLine("local to steam starting");
+            
             string command = $"xcopy /E /Y {this.localDir}\\{username}\\{currentSave}\\{this.MGSV1} {this.steamPath.Trim()}userdata\\{this.NameID[username].Trim()}\\{this.MGSV1} 2> nul";
             Console.WriteLine(command);
             this.CommandPrompter(command);
@@ -315,6 +332,39 @@ namespace SteamScan
 
 
         /// <summary>
+        /// Save current user to a file
+        /// </summary>
+        /// <param name="username"></param>
+        public void CurrentUser(string username, string userid)
+        {
+            string command = $"echo {username}>{this.localDir}\\currentuser.txt";
+            this.CommandPrompter(command);
+            command = $"echo {userid}>>{this.localDir}\\currentuser.txt";
+            this.CommandPrompter(command);
+        }
+
+
+        /// <summary>
+        /// Get current user from the file.
+        /// </summary>
+        /// <returns></returns>
+        public string GetCurrentUser()
+        {
+            return File.ReadAllLines($"{this.localDir}\\currentuser.txt")[0].Trim();
+        }
+
+
+        /// <summary>
+        /// Get userid of the currently used user
+        /// </summary>
+        /// <returns></returns>
+        public string GetCurrentID()
+        {
+            return File.ReadAllLines($"{this.localDir}\\currentuser.txt")[1].Trim();
+        }
+
+
+        /// <summary>
         /// Switch save files
         /// </summary>
         /// <param name="nextsave"></param>
@@ -361,7 +411,7 @@ namespace SteamScan
         public void ChangeCurrentSave(string save, string username)
         {
             Console.WriteLine("Updating current_save file");
-            string command = $"echo {save} > {this.localDir}\\{username}\\current_save.txt";
+            string command = $"echo {save}>{this.localDir}\\{username}\\current_save.txt";
             this.CommandPrompter(command);
             Console.WriteLine("current_save.txt updated");
         }
