@@ -54,9 +54,9 @@ namespace SteamScan
             try
             {
                 Console.WriteLine("trying to find steam_path.txt");
-                this.steamPath = File.ReadAllLines($"{this.localDir}\\steam_path.txt")[0];
+                this.steamPath = File.ReadAllLines($"{this.localDir}\\steam_path.txt")[0].Replace("\"", "");
                 Console.WriteLine("Steam path found");
-                return this.steamPath.Replace("\"", "");
+                return this.steamPath;
             } catch (IOException)
             {
                 Console.WriteLine("steam path not found, scanning...");
@@ -130,7 +130,7 @@ namespace SteamScan
             this.userNames = new List<string>();
             this.NameID = new Dictionary<string, string>();
             Console.WriteLine("Scanning for users.");
-            string command = $"{this.steamPath[0]}: && cd {this.steamPath.Trim()}userdata && dir /b /AD > {this.localDir.Trim()}\\users.txt";
+            string command = $"{this.steamPath.Replace("\"", "")[0]}: && cd {this.steamPath.Trim()}userdata && dir /b /AD > {this.localDir.Trim()}\\users.txt";
             Console.WriteLine(command);
             CommandPrompter(command);
             try { 
