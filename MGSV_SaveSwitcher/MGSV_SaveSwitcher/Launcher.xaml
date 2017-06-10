@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:MGSV_SaveSwitcher"
         mc:Ignorable="d"
-        Title="MGSV Save Manager" Height="660" Width="450" ResizeMode="CanMinimize" Icon="savemanager.ico" WindowStartupLocation="CenterScreen">
+        Title="MGSV Save Manager" Height="665" Width="450" ResizeMode="CanMinimize" Icon="savemanager.ico" WindowStartupLocation="CenterScreen">
     <StackPanel>
         <StackPanel.Background>
             <ImageBrush ImageSource="launcher_image.jpg" Stretch="UniformToFill" />

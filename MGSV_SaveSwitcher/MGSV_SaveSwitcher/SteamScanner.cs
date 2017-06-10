@@ -9,10 +9,19 @@ namespace SteamScan
         public string localDir = "C:\\MGSV_saves";
         private string steamPath = "";
         private string MGSV_Game = "steamapps\\common\\MGS_TPP\\mgsvtpp.exe";
-        private string MGSV1 = "287700";
-        private string MGSV2 = "311340";
+        private static string MGSV1 = "287700";
+        private static string MGSV2 = "311340";
 
-        private List<string> MGSV_Saves = new List<string>();
+        private List<string> MGSV_Saves = new List<string>(new string[] {
+            $"{MGSV1}\\local\\PERSONAL_DATA0",
+            $"{MGSV1}\\local\\PERSONAL_DATA1",
+            $"{MGSV1}\\local\\TPP_GAME_DATA0",
+            $"{MGSV1}\\local\\TPP_GAME_DATA1",
+            $"{MGSV2}\\remote\\TPP_CONFIG_DATA",
+            $"{MGSV2}\\remote\\TPP_GAME_DATA",
+            $"{MGSV2}\\remote\\PERSONAL_DATA"
+        });
+
         private List<string> userNames = new List<string>();
         private Dictionary<string, string> NameID = new Dictionary<string, string>();
         
@@ -22,14 +31,8 @@ namespace SteamScan
         /// </summary>
         public MySteamScanner()
         {
-            this.MGSV_Saves.Add($"{this.MGSV1}\\local\\PERSONAL_DATA0");
-            this.MGSV_Saves.Add($"{this.MGSV1}\\local\\PERSONAL_DATA1");
-            this.MGSV_Saves.Add($"{this.MGSV1}\\local\\TPP_GAME_DATA0");
-            this.MGSV_Saves.Add($"{this.MGSV1}\\local\\TPP_GAME_DATA1");
-            this.MGSV_Saves.Add($"{this.MGSV2}\\remote\\TPP_CONFIG_DATA");
-            this.MGSV_Saves.Add($"{this.MGSV2}\\remote\\TPP_GAME_DATA");
-            this.MGSV_Saves.Add($"{this.MGSV2}\\remote\\PERSONAL_DATA");
-        }
+            
+    }
 
 
         /// <summary>
@@ -53,41 +56,42 @@ namespace SteamScan
                 Console.WriteLine("trying to find steam_path.txt");
                 this.steamPath = File.ReadAllLines($"{this.localDir}\\steam_path.txt")[0];
                 Console.WriteLine("Steam path found");
-                return this.steamPath;
+                return this.steamPath.Replace("\"", "");
             } catch (IOException)
             {
                 Console.WriteLine("steam path not found, scanning...");
                 FirstRun();
 
-                string driveInfo = $"wmic LOGICALDISK LIST BRIEF > {this.localDir}\\drvs.txt";
+                string driveInfo = $"wmic LOGICALDISK LIST BRIEF > \"{this.localDir}\\drvs.txt\"";
                 CommandPrompter(driveInfo);
 
                 string[] drives = File.ReadAllLines($"{this.localDir}\\drvs.txt");
                 string findSteam;
-                string clearPathFile = $"{localDir[0]}: && del /Q {this.localDir}\\temp_path.txt 2> nul";
+                string clearPathFile = $"{this.localDir[0]}: && del /Q \"{this.localDir}\\temp_path.txt\" 2> nul";
                 CommandPrompter(clearPathFile);
 
                 for (int i = 1; i < drives.Length; i++)
                 {
                     drives[i] = drives[i][0] + ":";
-                    findSteam = $"{drives[i]} && dir /s /b Steam.exe >> {this.localDir}\\temp_path.txt";
+                    findSteam = $"{drives[i]} && cd {drives[i]}\\ && dir /s /b Steam.exe >> \"{this.localDir}\\temp_path.txt\"";
                     CommandPrompter(findSteam);
                 }
 
                 string[] temp_path = File.ReadAllLines($"{this.localDir}\\temp_path.txt");
                 foreach (string x in temp_path)
                 {
+                    
                     if (x.Contains("Steam.exe"))
                     {
-                        this.steamPath = x.Replace("Steam.exe", "").Trim();
-                        this.CommandPrompter($"dir /b {this.steamPath}>{this.localDir}\\tempdir.txt");
+                        this.steamPath = x.Replace("Steam.exe", "").Replace("\"", "");
+                        this.CommandPrompter($"dir /b \"{this.steamPath}\">\"{this.localDir}\\tempdir.txt\"");
                         foreach (string y in File.ReadAllLines($"{this.localDir}\\tempdir.txt"))
                         {
                             if (y.Contains("userdata"))
                             {
                                 Console.WriteLine("Found steam!");
-                                Console.WriteLine($"echo {this.steamPath.Trim()} > {this.localDir.Trim()}\\steam_path.txt");
-                                this.CommandPrompter($"echo {this.steamPath.Trim()} > {this.localDir.Trim()}\\steam_path.txt");
+                                Console.WriteLine($"echo \"{this.steamPath.Trim()}\">\"{this.localDir.Trim()}\\steam_path.txt\"");
+                                this.CommandPrompter($"echo \"{this.steamPath.Trim()}\">\"{this.localDir.Trim()}\\steam_path.txt\"");
                                 return this.steamPath;
                             }
                         }
@@ -239,20 +243,20 @@ namespace SteamScan
             string command;
             try
             {
-                command = $"xcopy /E /Y {this.steamPath.Trim()}userdata\\{this.NameID[username].Trim()}\\{this.MGSV1} {localDir}\\{username}\\{currentSave}\\{this.MGSV1} 2> nul";
+                command = $"xcopy /E /Y \"{this.steamPath.Trim()}userdata\\{this.NameID[username].Trim()}\\{MGSV1}\" \"{localDir}\\{username}\\{currentSave}\\{MGSV1}\" 2> nul";
             } catch
             {
-                command = $"xcopy /E /Y {this.steamPath.Trim()}userdata\\{this.GetCurrentID().Trim()}\\{this.MGSV1} {localDir}\\{username}\\{currentSave}\\{this.MGSV1} 2> nul";
+                command = $"xcopy /E /Y \"{this.steamPath.Trim()}userdata\\{this.GetCurrentID().Trim()}\\{MGSV1}\" \"{localDir}\\{username}\\{currentSave}\\{MGSV1}\" 2> nul";
             }
             
             Console.WriteLine(command);
             this.CommandPrompter(command);
             try
             {
-                command = $"xcopy /E /Y {this.steamPath.Trim()}userdata\\{this.NameID[username].Trim()}\\{this.MGSV2} {localDir}\\{username}\\{currentSave}\\{this.MGSV2} 2> nul";
+                command = $"xcopy /E /Y \"{this.steamPath.Trim()}userdata\\{this.NameID[username].Trim()}\\{MGSV2}\" \"{localDir}\\{username}\\{currentSave}\\{MGSV2}\" 2> nul";
             } catch
             {
-                command = $"xcopy /E /Y {this.steamPath.Trim()}userdata\\{this.GetCurrentID().Trim()}\\{this.MGSV2} {localDir}\\{username}\\{currentSave}\\{this.MGSV2} 2> nul";
+                command = $"xcopy /E /Y \"{this.steamPath.Trim()}userdata\\{this.GetCurrentID().Trim()}\\{MGSV2}\" \"{localDir}\\{username}\\{currentSave}\\{MGSV2}\" 2> nul";
             }
             
             Console.WriteLine(command);
@@ -270,10 +274,10 @@ namespace SteamScan
         {
             Console.WriteLine("local to steam starting");
             
-            string command = $"xcopy /E /Y {this.localDir}\\{username}\\{currentSave}\\{this.MGSV1} {this.steamPath.Trim()}userdata\\{this.NameID[username].Trim()}\\{this.MGSV1} 2> nul";
+            string command = $"xcopy /E /Y \"{this.localDir}\\{username}\\{currentSave}\\{MGSV1}\" \"{this.steamPath.Trim()}userdata\\{this.NameID[username].Trim()}\\{MGSV1}\" 2> nul";
             Console.WriteLine(command);
             this.CommandPrompter(command);
-            command = $"xcopy /E /Y {this.localDir}\\{username}\\{currentSave}\\{this.MGSV2} {this.steamPath.Trim()}userdata\\{this.NameID[username].Trim()}\\{this.MGSV2} 2> nul";
+            command = $"xcopy /E /Y \"{this.localDir}\\{username}\\{currentSave}\\{MGSV2}\" \"{this.steamPath.Trim()}userdata\\{this.NameID[username].Trim()}\\{MGSV2}\" 2> nul";
             Console.WriteLine(command);
             this.CommandPrompter(command);
             Console.WriteLine("Local to steam complet");
@@ -322,9 +326,9 @@ namespace SteamScan
             Console.WriteLine("first save for user " + username);
             string command = $"mkdir {this.localDir}\\{username}\\{savename}";
             this.CommandPrompter(command);
-            command = $"mkdir {this.localDir}\\{username}\\{savename}\\{this.MGSV1}";
+            command = $"mkdir {this.localDir}\\{username}\\{savename}\\{MGSV1}";
             this.CommandPrompter(command);
-            command = $"mkdir {this.localDir}\\{username}\\{savename}\\{this.MGSV2}";
+            command = $"mkdir {this.localDir}\\{username}\\{savename}\\{MGSV2}";
             this.CommandPrompter(command);
             this.SteamToLocal(savename, username);
             this.ChangeCurrentSave(savename, username);
@@ -430,9 +434,9 @@ namespace SteamScan
             this.SteamToLocal(current, username);
             string command = $"mkdir {this.localDir}\\{username}\\{savename}";
             this.CommandPrompter(command);
-            command = $"mkdir {this.localDir}\\{username}\\{savename}\\{this.MGSV1} 2> nul";
+            command = $"mkdir {this.localDir}\\{username}\\{savename}\\{MGSV1} 2> nul";
             this.CommandPrompter(command);
-            command = $"mkdir {this.localDir}\\{username}\\{savename}\\{this.MGSV2} 2> nul";
+            command = $"mkdir {this.localDir}\\{username}\\{savename}\\{MGSV2} 2> nul";
             this.CommandPrompter(command);
             this.DeleteSteamFiles(this.NameID[username]);
             this.SteamToLocal(savename, username);

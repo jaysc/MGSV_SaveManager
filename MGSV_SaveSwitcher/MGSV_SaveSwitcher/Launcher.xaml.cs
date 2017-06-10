@@ -17,8 +17,8 @@ namespace MGSV_SaveSwitcher
         WebClient webReader = new WebClient();
         string branch = "master";
         bool alertOnOff = false;
-        string currentVersion = "v2.4.0";
-        int curVersion = 240;
+        string currentVersion = "v2.4.1";
+        int curVersion = 241;
 
         string steamPath = "";
         
