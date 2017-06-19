@@ -1,17 +1,22 @@
 ﻿using System;
 using System.IO;
 using System.Collections.Generic;
+using System.Linq;
+using ManagerLogger;
 
 namespace SteamScan
 {
     public class MySteamScanner
     {
-        public string localDir = "C:\\MGSV_saves";
+        Logger myLogger;
+        public string localDir;
+        public string configPath;
         private string steamPath = "";
         private string MGSV_Game = "steamapps\\common\\MGS_TPP\\mgsvtpp.exe";
         private static string MGSV1 = "287700";
         private static string MGSV2 = "311340";
 
+        /// Files affecting save data
         private List<string> MGSV_Saves = new List<string>(new string[] {
             $"{MGSV1}\\local\\PERSONAL_DATA0",
             $"{MGSV1}\\local\\PERSONAL_DATA1",
@@ -27,12 +32,14 @@ namespace SteamScan
         
 
         /// <summary>
-        /// When When steam scanner created, add mgsv save files to the list.
+        /// 
         /// </summary>
-        public MySteamScanner()
+        public MySteamScanner(string localpath, string configpath)
         {
-            
-    }
+            this.localDir = localpath;
+            this.configPath = configpath;
+            this.myLogger = new Logger(this.configPath);
+        }
 
 
         /// <summary>
@@ -53,51 +60,65 @@ namespace SteamScan
         {
             try
             {
+                this.myLogger.LogToFile("Attempting reading steam path from the file.");
                 Console.WriteLine("trying to find steam_path.txt");
-                this.steamPath = File.ReadAllLines($"{this.localDir}\\steam_path.txt")[0].Replace("\"", "");
+                this.steamPath = File.ReadAllLines(Path.Combine(this.configPath, "steam_path.txt"))[0].Replace("\"", "");
                 Console.WriteLine("Steam path found");
+                this.myLogger.LogToFile($"Steam installed in {this.steamPath}");
                 return this.steamPath;
-            } catch (IOException)
+            } catch (IOException e)
             {
+                this.myLogger.LogToFile($"Steam path not yet set, {e}");
                 Console.WriteLine("steam path not found, scanning...");
                 FirstRun();
 
-                string driveInfo = $"wmic LOGICALDISK LIST BRIEF > \"{this.localDir}\\drvs.txt\"";
+                this.myLogger.LogToFile("Listing available drives.");
+                string driveInfo = $"wmic LOGICALDISK LIST BRIEF > \"{Path.Combine(this.configPath, "drvs.txt")}\"";
+                Console.WriteLine(driveInfo);
                 CommandPrompter(driveInfo);
-
-                string[] drives = File.ReadAllLines($"{this.localDir}\\drvs.txt");
+                Console.WriteLine(Path.Combine(this.configPath, "drvs.txt"));
+                List<string> drives = File.ReadAllLines(Path.Combine(this.configPath, "drvs.txt")).ToList<string>();
                 string findSteam;
-                string clearPathFile = $"{this.localDir[0]}: && del /Q \"{this.localDir}\\temp_path.txt\" 2> nul";
-                CommandPrompter(clearPathFile);
+                File.Delete(Path.Combine(this.configPath, "temp_path.txt"));
 
-                for (int i = 1; i < drives.Length; i++)
+                this.myLogger.LogToFile("Scannning through the drives.");
+                for (int i = 1; i < drives.Count; i++)
                 {
                     drives[i] = drives[i][0] + ":";
-                    findSteam = $"{drives[i]} && cd {drives[i]}\\ && dir /s /b Steam.exe >> \"{this.localDir}\\temp_path.txt\"";
+                    findSteam = $"{drives[i]} && cd {drives[i]}\\ && dir /s /b Steam.exe >> \"{Path.Combine(this.configPath, "temp_path.txt")}\"";
                     CommandPrompter(findSteam);
                 }
-
-                string[] temp_path = File.ReadAllLines($"{this.localDir}\\temp_path.txt");
+                Console.WriteLine(Path.Combine(this.configPath, "temp_path.txt"));
+                List<string> temp_path = File.ReadAllLines(Path.Combine(this.configPath, "temp_path.txt")).ToList<string>();
+                this.myLogger.LogToFile("Searching for Steam.exe.");
                 foreach (string x in temp_path)
                 {
-                    
+                    /// Check if directory contains Steam.exe
                     if (x.Contains("Steam.exe"))
                     {
                         this.steamPath = x.Replace("Steam.exe", "").Replace("\"", "");
-                        this.CommandPrompter($"dir /b \"{this.steamPath}\">\"{this.localDir}\\tempdir.txt\"");
-                        foreach (string y in File.ReadAllLines($"{this.localDir}\\tempdir.txt"))
+                        /// Check if the directory contains userdata folder
+                        if (Directory.GetDirectories(this.steamPath, "userdata").Length > 0)
                         {
-                            if (y.Contains("userdata"))
+                            this.myLogger.LogToFile($"Steam found in {this.steamPath}");
+                            if (Directory.GetDirectories(Path.Combine(this.steamPath, "steamapps\\common"), "MGS_TPP").Length > 0)
                             {
-                                Console.WriteLine("Found steam!");
-                                Console.WriteLine($"echo \"{this.steamPath.Trim()}\">\"{this.localDir.Trim()}\\steam_path.txt\"");
-                                this.CommandPrompter($"echo \"{this.steamPath.Trim()}\">\"{this.localDir.Trim()}\\steam_path.txt\"");
+                                File.WriteAllText(Path.Combine(this.configPath, "steam_path.txt"), this.steamPath.Trim());
+                                File.Delete(Path.Combine(this.configPath, "temp_path.txt"));
+                                File.Delete(Path.Combine(this.configPath, "drvs.txt"));
+                                this.myLogger.LogToFile("MGSV installation found.");
                                 return this.steamPath;
+                            }
+                            else
+                            {
+                                this.myLogger.LogToFile("Error, MGSV installation not found.");
+                                return "Error:No MGSV installation found.";
                             }
                         }
                     }
                 }
-                return "";
+                this.myLogger.LogToFile("Error: Steam not found.");
+                return "Error: Steam installation not found.";
             }
         }
 
@@ -108,6 +129,7 @@ namespace SteamScan
         /// <param name="command"></param>
         private void CommandPrompter(string command)
         {
+            this.myLogger.LogToFile($"CLI command: {command}");
             System.Diagnostics.Process process = new System.Diagnostics.Process();
             System.Diagnostics.ProcessStartInfo startInfo = new System.Diagnostics.ProcessStartInfo()
             {
@@ -122,7 +144,7 @@ namespace SteamScan
 
 
         /// <summary>
-        /// Scan for users
+        /// Scan userdata folder for steam users
         /// </summary>
         /// <returns></returns>
         public Dictionary<string, string> UserScan()
@@ -130,18 +152,18 @@ namespace SteamScan
             this.userNames = new List<string>();
             this.NameID = new Dictionary<string, string>();
             Console.WriteLine("Scanning for users.");
-            string command = $"{this.steamPath.Replace("\"", "")[0]}: && cd {this.steamPath.Trim()}userdata && dir /b /AD > {this.localDir.Trim()}\\users.txt";
+            string command = $"dir /b /AD {Path.Combine(this.steamPath.Trim(), "userdata")}> {Path.Combine(this.configPath, "users.txt")}";
             Console.WriteLine(command);
             CommandPrompter(command);
             try { 
-                string[] users = File.ReadAllLines($"{this.localDir.Trim()}\\users.txt");
+                List<string> users = File.ReadAllLines($"{this.configPath.Trim()}\\users.txt").ToList<string>();
                 foreach (string userid in users)
                 {
                     if (userid != "anonymous")
                     {
                         try
                         {
-                            string[] userData = File.ReadAllLines($"{this.steamPath}\\userdata\\{userid}\\config\\localconfig.vdf");
+                            List<string> userData = File.ReadAllLines($"{this.steamPath}\\userdata\\{userid}\\config\\localconfig.vdf").ToList();
                             foreach (string line in userData)
                             {
                                 if (line.Contains("PersonaName"))
@@ -171,6 +193,7 @@ namespace SteamScan
                 return this.NameID;
             } catch (IOException e)
             {
+                this.myLogger.LogToFile($"Error: {e}");
                 Console.WriteLine($"Error: {e}");
                 return this.NameID;
             }
@@ -182,9 +205,8 @@ namespace SteamScan
         /// </summary>
         public void FirstRun()
         {
-            Console.WriteLine("Creating local directory.");
-            string command = $"mkdir {this.localDir} 2> nul";
-            CommandPrompter(command);
+            Directory.CreateDirectory(this.localDir);
+            this.myLogger.LogToFile($"Created save directory in {this.localDir}");
         }
 
 
@@ -195,39 +217,31 @@ namespace SteamScan
         /// <returns></returns>
         public List<string> SaveScan(string username)
         {
-            Console.WriteLine("Save scanning starting");
-            string command = $"mkdir {this.localDir}\\{username} 2> nul";
-            Console.WriteLine(command);
+            this.myLogger.LogToFile("Scanning for saves.");
+            Directory.CreateDirectory(Path.Combine(this.localDir, username));
+            string command = $"{this.localDir[0]}: && dir /b /AD \"{Path.Combine(this.localDir, username)}\" > \"{Path.Combine(this.localDir, username, "saves.txt")}\"";
             CommandPrompter(command);
-            command = $"{this.localDir[0]}: && dir /b /AD {this.localDir}\\{username} > {this.localDir}\\{username}\\saves.txt";
-            CommandPrompter(command);
-            string[] saves_temp = File.ReadAllLines($"{this.localDir}\\{username}\\saves.txt");
+            List<string> saves_temp = File.ReadAllLines(Path.Combine(this.localDir, username, "saves.txt")).ToList<string>();
+
+            Console.WriteLine(saves_temp.Count + " Saves found");
+            this.myLogger.LogToFile($"{saves_temp.Count} saves found.");
             
-            Console.WriteLine("saves.txt read");
-            List<string> saves = new List<string>();
-            foreach (string x in saves_temp)
-            {
-                saves.Add(x);
-            }
-            Console.WriteLine("saves copied to list");
-            Console.WriteLine(saves.Count + " Saves found");
-            
-            if (saves.Count < 1 && username != "")
+            if (saves_temp.Count < 1 && username != "")
             {
                 Console.WriteLine("No saves found, creating new one");
                 this.FirstSave("original", username);
                 this.ChangeCurrentSave("original", username);
-            } else if (!saves.Contains(CurrentSave(username)) && username != "")
+            } else if (!saves_temp.Contains(CurrentSave(username)) && username != "")
             {
                 Console.WriteLine("Saves found, but the current_save not among them.");
                 this.FirstSave(this.CurrentSave(username), username);
-            } else if (saves.Count == 1 && username != "")
+            } else if (saves_temp.Count == 1 && username != "")
             {
-                this.SteamToLocal(saves[0], username);
-                this.ChangeCurrentSave(saves[0], username);
+                this.SteamToLocal(saves_temp[0], username);
+                this.ChangeCurrentSave(saves_temp[0], username);
             }
             Console.WriteLine("Save Scan completed.");
-            return saves;
+            return saves_temp;
         }
 
 
@@ -241,26 +255,28 @@ namespace SteamScan
             Console.WriteLine("Steam to local starting");
             Console.WriteLine(this.steamPath);
             string command;
+
             try
             {
-                command = $"xcopy /E /Y \"{this.steamPath.Trim()}userdata\\{this.NameID[username].Trim()}\\{MGSV1}\" \"{localDir}\\{username}\\{currentSave}\\{MGSV1}\" 2> nul";
-            } catch
+                command = $"xcopy /E /Y \"{Path.Combine(this.steamPath, "userdata", this.NameID[username], MGSV1)}\" \"{Path.Combine(this.localDir, username, currentSave, MGSV1)}\" 2> nul";
+                
+            } catch 
             {
-                command = $"xcopy /E /Y \"{this.steamPath.Trim()}userdata\\{this.GetCurrentID().Trim()}\\{MGSV1}\" \"{localDir}\\{username}\\{currentSave}\\{MGSV1}\" 2> nul";
+                command = $"xcopy /E /Y \"{Path.Combine(this.steamPath, "userdata", this.GetCurrentID(), MGSV1)}\" \"{Path.Combine(this.localDir, username, currentSave, MGSV1)}\" 2> nul";
             }
-            
             Console.WriteLine(command);
             this.CommandPrompter(command);
+
             try
             {
-                command = $"xcopy /E /Y \"{this.steamPath.Trim()}userdata\\{this.NameID[username].Trim()}\\{MGSV2}\" \"{localDir}\\{username}\\{currentSave}\\{MGSV2}\" 2> nul";
+                command = $"xcopy /E /Y \"{Path.Combine(this.steamPath, "userdata", this.NameID[username], MGSV2)}\" \"{Path.Combine(this.localDir, username, currentSave, MGSV2)}\" 2> nul";
             } catch
             {
-                command = $"xcopy /E /Y \"{this.steamPath.Trim()}userdata\\{this.GetCurrentID().Trim()}\\{MGSV2}\" \"{localDir}\\{username}\\{currentSave}\\{MGSV2}\" 2> nul";
+                command = $"xcopy /E /Y \"{Path.Combine(this.steamPath, "userdata", this.GetCurrentID(), MGSV2)}\" \"{Path.Combine(this.localDir, username, currentSave, MGSV2)}\" 2> nul";
             }
-            
             Console.WriteLine(command);
             this.CommandPrompter(command);
+
             Console.WriteLine("Steam to local completed");
         }
 
@@ -273,14 +289,16 @@ namespace SteamScan
         public void LocalToSteam(string currentSave, string username)
         {
             Console.WriteLine("local to steam starting");
-            
-            string command = $"xcopy /E /Y \"{this.localDir}\\{username}\\{currentSave}\\{MGSV1}\" \"{this.steamPath.Trim()}userdata\\{this.NameID[username].Trim()}\\{MGSV1}\" 2> nul";
+
+            string command = $"xcopy /E /Y \"{Path.Combine(this.localDir, username, currentSave, MGSV1)}\" \"{Path.Combine(this.steamPath, "userdata", this.NameID[username], MGSV1)}\" 2> nul";
             Console.WriteLine(command);
             this.CommandPrompter(command);
-            command = $"xcopy /E /Y \"{this.localDir}\\{username}\\{currentSave}\\{MGSV2}\" \"{this.steamPath.Trim()}userdata\\{this.NameID[username].Trim()}\\{MGSV2}\" 2> nul";
+
+            command = $"xcopy /E /Y \"{Path.Combine(this.localDir, username, currentSave, MGSV2)}\" \"{Path.Combine(this.steamPath, "userdata", this.NameID[username], MGSV2)}\" 2> nul";
             Console.WriteLine(command);
             this.CommandPrompter(command);
-            Console.WriteLine("Local to steam complet");
+
+            Console.WriteLine("Local to steam complete");
         }
 
 
@@ -293,13 +311,15 @@ namespace SteamScan
         {
             try
             {
-                string currentsave = File.ReadAllLines($"{localDir}\\{username}\\current_save.txt")[0];
+                string currentsave = File.ReadAllLines(Path.Combine(this.localDir, username, "current_save.txt"))[0];
                 return currentsave.Trim();
-            } catch (IOException)
+            } catch (IOException e)
             {
+                this.myLogger.LogToFile($"Error: {e}");
+
+
                 string currentsave = "none";
-                string command = $"echo {currentsave} > {this.localDir}\\{username}\\current_save.txt";
-                this.CommandPrompter(command);
+                File.WriteAllText(Path.Combine(this.localDir, username, "current_save.txt"), currentsave);
                 return currentsave.Trim();
             }
                 
@@ -316,6 +336,7 @@ namespace SteamScan
             SteamToLocal(CurrentSave(prevuser), prevuser);
         }
 
+
         /// <summary>
         /// Create the first save
         /// </summary>
@@ -324,12 +345,10 @@ namespace SteamScan
         public void FirstSave(string savename, string username)
         {
             Console.WriteLine("first save for user " + username);
-            string command = $"mkdir {this.localDir}\\{username}\\{savename}";
-            this.CommandPrompter(command);
-            command = $"mkdir {this.localDir}\\{username}\\{savename}\\{MGSV1}";
-            this.CommandPrompter(command);
-            command = $"mkdir {this.localDir}\\{username}\\{savename}\\{MGSV2}";
-            this.CommandPrompter(command);
+            Directory.CreateDirectory(Path.Combine(this.localDir, username, savename));
+            Directory.CreateDirectory(Path.Combine(this.localDir, username, savename, MGSV1));
+            Directory.CreateDirectory(Path.Combine(this.localDir, username, savename, MGSV2));
+
             this.SteamToLocal(savename, username);
             this.ChangeCurrentSave(savename, username);
         }
@@ -341,10 +360,14 @@ namespace SteamScan
         /// <param name="username"></param>
         public void CurrentUser(string username, string userid)
         {
-            string command = $"echo {username}>{this.localDir}\\currentuser.txt";
-            this.CommandPrompter(command);
-            command = $"echo {userid}>>{this.localDir}\\currentuser.txt";
-            this.CommandPrompter(command);
+            try
+            {
+                File.WriteAllText(Path.Combine(this.configPath, "currentuser.txt"), $"{username}\n{userid}");
+            } catch (IOException e)
+            {
+                this.myLogger.LogToFile($"Error: {e}");
+            }
+            
         }
 
 
@@ -354,7 +377,7 @@ namespace SteamScan
         /// <returns></returns>
         public string GetCurrentUser()
         {
-            return File.ReadAllLines($"{this.localDir}\\currentuser.txt")[0].Trim();
+            return File.ReadAllLines(Path.Combine(this.configPath, "currentuser.txt"))[0].Trim();
         }
 
 
@@ -364,7 +387,7 @@ namespace SteamScan
         /// <returns></returns>
         public string GetCurrentID()
         {
-            return File.ReadAllLines($"{this.localDir}\\currentuser.txt")[1].Trim();
+            return File.ReadAllLines(Path.Combine(this.configPath, "currentuser.txt"))[1].Trim();
         }
 
 
@@ -399,9 +422,7 @@ namespace SteamScan
             Console.WriteLine("Deleting steam files.");
             foreach (string data in this.MGSV_Saves)
             {
-                string command = $"del /Q {this.steamPath.Trim()}userdata\\{userid}\\{data}";
-                Console.WriteLine(command + " file deleted");
-                this.CommandPrompter(command);
+                File.Delete(Path.Combine(this.steamPath, "userdata", userid, data));
             }
             Console.WriteLine("steam files deleted");
         }
@@ -415,8 +436,7 @@ namespace SteamScan
         public void ChangeCurrentSave(string save, string username)
         {
             Console.WriteLine("Updating current_save file");
-            string command = $"echo {save}>{this.localDir}\\{username}\\current_save.txt";
-            this.CommandPrompter(command);
+            File.WriteAllText(Path.Combine(this.localDir, username, "current_save.txt"), save);
             Console.WriteLine("current_save.txt updated");
         }
 
@@ -432,12 +452,11 @@ namespace SteamScan
             string current = CurrentSave(username);
    
             this.SteamToLocal(current, username);
-            string command = $"mkdir {this.localDir}\\{username}\\{savename}";
-            this.CommandPrompter(command);
-            command = $"mkdir {this.localDir}\\{username}\\{savename}\\{MGSV1} 2> nul";
-            this.CommandPrompter(command);
-            command = $"mkdir {this.localDir}\\{username}\\{savename}\\{MGSV2} 2> nul";
-            this.CommandPrompter(command);
+
+            Directory.CreateDirectory(Path.Combine(this.localDir, username, savename));
+            Directory.CreateDirectory(Path.Combine(this.localDir, username, savename, MGSV1));
+            Directory.CreateDirectory(Path.Combine(this.localDir, username, savename, MGSV2));
+
             this.DeleteSteamFiles(this.NameID[username]);
             this.SteamToLocal(savename, username);
             
@@ -455,9 +474,7 @@ namespace SteamScan
         public void RenameSave(string save, string username, string newname)
         {
             Console.WriteLine("renaming save " + save + " to " + newname);
-            string command = $"rename {this.localDir}\\{username}\\{save.Trim()} {newname}";
-            Console.WriteLine(command);
-            this.CommandPrompter(command);
+            Directory.Move(Path.Combine(this.localDir, username, save), Path.Combine(this.localDir, username, newname));
             ChangeCurrentSave(newname, username);
             Console.WriteLine("rename done.");
         }
@@ -471,12 +488,12 @@ namespace SteamScan
         public void DeleteSave(string save, string username)
         {
             Console.WriteLine("Deleting save");
-            string command = $"rmdir /S /Q {localDir}\\{username}\\{save}";
-            this.CommandPrompter(command);
+            Directory.Delete(Path.Combine(this.localDir, username, save), true);
             
             if (save == CurrentSave(username))
             {
                 Console.WriteLine("save was current save, changing save to first save found");
+                this.myLogger.LogToFile("Deleted currently used save, changing to the first save found.");
                 this.DeleteSteamFiles(this.NameID[username]);
                 string cursave = this.SaveScan(username)[0];
                 this.ChangeCurrentSave(cursave, username);
@@ -491,11 +508,17 @@ namespace SteamScan
         /// </summary>
         public void LaunchGame()
         {
-            Console.WriteLine("Launching MGSV: TPP game");
-            Console.WriteLine($"{this.steamPath.Trim()}{MGSV_Game}");
-            System.Diagnostics.Process.Start($"{this.steamPath.Trim()}{MGSV_Game}");
+            try
+            {
+                Console.WriteLine("Launching MGSV: TPP game");
+                Console.WriteLine($"{this.steamPath.Trim()}{MGSV_Game}");
+                System.Diagnostics.Process.Start($"{this.steamPath.Trim()}{MGSV_Game}");
+            } catch (Exception e)
+            {
+                this.myLogger.LogToFile($"Error while launching MGSV, {e}");
+            }
+            
         }
 
     }
 }
-

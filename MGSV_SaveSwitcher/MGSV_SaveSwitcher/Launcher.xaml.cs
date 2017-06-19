@@ -4,7 +4,10 @@ using SteamScan;
 using System.Net;
 using System.Diagnostics;
 using System.Windows.Navigation;
-
+using System.IO;
+using System.Linq;
+using System.Collections.Generic;
+using ManagerLogger;
 
 namespace MGSV_SaveSwitcher
 {
@@ -13,41 +16,160 @@ namespace MGSV_SaveSwitcher
     /// </summary>
     public partial class Launcher : Window
     {
-        MySteamScanner SteamScanner = new MySteamScanner();
+        MySteamScanner SteamScanner;
+        Logger myLogger;
         WebClient webReader = new WebClient();
         string branch = "master";
         bool alertOnOff = false;
-        string currentVersion = "v2.4.1";
-        int curVersion = 241;
+        string currentVersion = "v2.5.0";
+        int curVersion = 250;
+        string configFiles = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "MGSV_SaveManager");
+        string localPath;
+        string steamPath;
 
-        string steamPath = "";
-        
         public Launcher()
         {
+            this.myLogger = new Logger(this.configFiles);
+            this.myLogger.LogToFile("Application starting");
             InitializeComponent();
             Closing += LauncherClosing;
             this.Version.Text = this.currentVersion;
             this.UpdateCheck();
-
-            this.steamPath = this.SteamScanner.ScanSteam();
-            if (steamPath == "")
+            
+            try
             {
-                MessageBox.Show("Steam not found, if you are sure it's installed and keep getting this message, please make an bug report to the GitHub project page.");
-            } else
+                this.localPath = File.ReadAllLines(Path.Combine(this.configFiles, "localpath.txt"))[0].Trim().Replace("\"", "");
+                if (Directory.Exists(this.localPath))
+                {
+                    this.SteamScanner = new MySteamScanner(this.localPath, this.configFiles);
+                    this.steamPath = this.SteamScanner.ScanSteam();
+                    this.CheckSteamPath();
+                } else
+                {
+                    this.myLogger.LogToFile("Local path doesn't exist.");
+                    if (this.SaveLocation())
+                    {
+                        this.SteamScanner = new MySteamScanner(this.localPath, this.configFiles);
+                        this.steamPath = this.SteamScanner.ScanSteam();
+                        this.CheckSteamPath();
+                    }
+                    else
+                    {
+                        App.Current.Shutdown();
+                    }
+                }
+            } catch (Exception e)
+            {
+                this.myLogger.LogToFile($"Local path not yet defined, {e}");
+                if (this.SaveLocation())
+                {
+                    if (!Directory.Exists(this.localPath) || (Directory.Exists(this.localPath) && Directory.GetDirectories(this.localPath).Length < 1))
+                    {
+                        this.myLogger.LogToFile("Local directory doesn't exist, or exist but doesn't contain saves.");
+                        this.CopyOld();
+                    }
+                    this.SteamScanner = new MySteamScanner(this.localPath, this.configFiles);
+                    this.steamPath = this.SteamScanner.ScanSteam();
+                    this.CheckSteamPath();
+                }
+                else
+                {
+                    App.Current.Shutdown();
+                }
+            }
+        }
+
+
+        /// <summary>
+        /// Choose where to store save files
+        /// </summary>
+        private bool SaveLocation()
+        {
+            MessageBox.Show("Select a location where to store the save files.\nOld files will be copied to the new location.");
+            this.myLogger.LogToFile("Selecting save location...");
+            using (var dialog = new System.Windows.Forms.FolderBrowserDialog())
+            {
+                dialog.SelectedPath = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
+                System.Windows.Forms.DialogResult result = dialog.ShowDialog();
+                if (result == System.Windows.Forms.DialogResult.OK)
+                {
+                    Console.WriteLine(dialog.SelectedPath);
+                    this.localPath = Path.Combine(dialog.SelectedPath, "MGSV_SaveManager");
+                    File.WriteAllText(Path.Combine(this.configFiles, "localpath.txt"), this.localPath);
+                    return true;
+                }
+                else
+                {
+                    Console.WriteLine("Cancelled or error");
+                    this.myLogger.LogToFile("Save location selection cancelled.");
+                    return false;
+                }
+            }
+        }
+
+
+        /// <summary>
+        /// Copy old configs and saves
+        /// </summary>
+        private void CopyOld()
+        {
+            this.CommandPrompter($"dir /b C:\\MGSV_saves > {Path.Combine(this.configFiles, "old_files.txt")}");
+            this.CommandPrompter($"dir /b /ad C:\\MGSV_saves > {Path.Combine(this.configFiles, "save_folders.txt")}");
+            List<string> oldfiles = new List<string>(){"currentuser.txt", "current_save.txt", "steam_path.txt", "users.txt"};
+            List<string> old_configs = File.ReadAllLines(Path.Combine(this.configFiles, "old_files.txt")).ToList<string>();
+            List<string> old_saves = File.ReadAllLines(Path.Combine(this.configFiles, "save_folders.txt")).ToList<string>();
+
+            Directory.CreateDirectory(this.localPath);
+
+            foreach (string x in old_configs)
+            {
+                if (oldfiles.Contains(x))
+                {
+                    File.Copy(Path.Combine("C:\\MGSV_saves", x.Trim()), Path.Combine(this.configFiles, x.Trim()), true);
+                }
+            }
+            foreach (string x in old_saves)
+            {
+                this.CommandPrompter($"xcopy /E /Y {Path.Combine("C:\\MGSV_saves", x)} {Path.Combine(this.localPath, x)}\\");
+            }
+            File.Delete(Path.Combine(this.configFiles, "old_files.txt"));
+            File.Delete(Path.Combine(this.configFiles, "save_folders.txt"));
+            this.myLogger.LogToFile("Old files copied to the new location.");
+        }
+
+
+        /// <summary>
+        /// Check steam path
+        /// </summary>
+        private void CheckSteamPath()
+        {
+            if (this.steamPath == "")
+            {
+                MessageBox.Show("Error with locating Steam, try running the application again.");
+                this.myLogger.LogToFile("Error, Steam path empty.");
+            }
+            else if (steamPath.Contains("Error:"))
+            {
+                MessageBox.Show(this.steamPath.Replace("Error:", ""));
+                this.myLogger.LogToFile($"{this.steamPath}");
+            }
+            else
             {
                 this.LaunchGameButton.IsEnabled = true;
                 this.SavesButton.IsEnabled = true;
                 try
                 {
                     Console.WriteLine($"{this.SteamScanner.GetCurrentUser()}");
+                    Console.WriteLine("current user found");
                     Console.WriteLine($"{this.SteamScanner.CurrentSave(this.SteamScanner.GetCurrentUser())}");
                     this.SteamScanner.SteamToLocal(this.SteamScanner.CurrentSave(this.SteamScanner.GetCurrentUser()), this.SteamScanner.GetCurrentUser());
                     this.SettingsButton.IsEnabled = true;
-                    Console.WriteLine("Steam to local done.");
+                    this.SettingsButton.Content = "Settings";
                 }
-                catch
+                catch (Exception e)
                 {
                     Console.WriteLine("No current user or save found, probably first run.");
+                    this.myLogger.LogToFile($"No current user, settings menu disabled. {e}");
                 }
             }
         }
@@ -69,10 +191,11 @@ namespace MGSV_SaveSwitcher
         /// </summary>
         private void UpdateCheck()
         {
+            this.myLogger.LogToFile("Checking for updates...");
             try
             {
                 string webRelease = this.webReader.DownloadString($"https://raw.githubusercontent.com/thatsafy/MGSV_SaveManager/{this.branch}/latest.txt");
-                string[] temp = webRelease.Split('.');
+                List<string> temp = webRelease.Split('.').ToList<string>();
                 string latest = "";
                 foreach (string x in temp)
                 {
@@ -82,6 +205,7 @@ namespace MGSV_SaveSwitcher
 
                 if (this.curVersion < version)
                 {
+                    this.myLogger.LogToFile($"New release available: {webRelease}");
                     this.UpdateMessage(webRelease);
                     this.ToggleAlert();
                 }
@@ -89,6 +213,7 @@ namespace MGSV_SaveSwitcher
             catch (Exception e)
             {
                 Console.WriteLine($"Error while checking for updates.\nError: {e}");
+                this.myLogger.LogToFile($"Error while checking for updates, {e}");
             }
         }
 
@@ -98,6 +223,7 @@ namespace MGSV_SaveSwitcher
         /// </summary>
         private void ToggleAlert()
         {
+            this.myLogger.LogToFile("Toggling update notifications on/off.");
             if (this.alertOnOff)
             {
                 this.alertOnOff = false;
@@ -121,7 +247,8 @@ namespace MGSV_SaveSwitcher
         /// <param name="release"></param>
         private void UpdateMessage(string release)
         {
-            MessageBox.Show($"New release available.\nCurrent release: {this.currentVersion}\nLatest release: {release}");
+            string releaseNotes = this.webReader.DownloadString($"https://raw.githubusercontent.com/thatsafy/MGSV_SaveManager/{this.branch}/releasenotes.txt");
+            MessageBox.Show($"New release available.\nCurrent release: {this.currentVersion}\nLatest release: {release}\n{releaseNotes}");
         }
 
 
@@ -145,13 +272,15 @@ namespace MGSV_SaveSwitcher
         private void LaunchSettings(object sender, RoutedEventArgs e)
         {
             Console.WriteLine("open saves window");
-            SettingsWindow SettingsWindow = new SettingsWindow();
+            SettingsWindow SettingsWindow = new SettingsWindow(this.SteamScanner, this.localPath, this.configFiles);
             try {
                 SettingsWindow.Show();
                 this.IsEnabled = false;
-            } catch
+                this.myLogger.LogToFile("Log: Settings menu opened.");
+            } catch (Exception x)
             {
                 Console.WriteLine("Settings not opened.");
+                this.myLogger.LogToFile($"Error: Settings menu not opened. {x}");
             }
             SettingsWindow.Closing += this.EnableLauncher;
         }
@@ -164,9 +293,11 @@ namespace MGSV_SaveSwitcher
         /// <param name="e"></param>
         private void EnableLauncher(object sender, System.ComponentModel.CancelEventArgs e)
         {
+            this.myLogger.LogToFile("Launcher enabled.");
             this.IsEnabled = true;
             if (!this.SettingsButton.IsEnabled && this.SteamScanner.GetCurrentUser() != "")
             {
+                this.SettingsButton.Content = "Settings";
                 this.SettingsButton.IsEnabled = true;
             }
         }
@@ -179,6 +310,7 @@ namespace MGSV_SaveSwitcher
         /// <param name="e"></param>
         private void Exit_Click(object sender, RoutedEventArgs e)
         {
+            this.myLogger.LogToFile("Application quit.");
             App.Current.Shutdown();
         }
 
@@ -190,16 +322,65 @@ namespace MGSV_SaveSwitcher
         /// <param name="e"></param>
         private void LauncherClosing(object sender, System.ComponentModel.CancelEventArgs e)
         {
+            this.myLogger.LogToFile("Application quit.");
             App.Current.Shutdown();
         }
 
+        /// <summary>
+        /// Launch saves window
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void Saves_Click(object sender, RoutedEventArgs e)
         {
+            this.myLogger.LogToFile("Opening saves window.");
             Console.WriteLine("open saves window");
             MainWindow SavesWindow = new MainWindow(this.SteamScanner);
             SavesWindow.Show();
             this.IsEnabled = false;
             SavesWindow.Closing += this.EnableLauncher;
+        }
+
+
+        /// <summary>
+        /// Use Windows Command prompt
+        /// </summary>
+        /// <param name="command"></param>
+        private void CommandPrompter(string command)
+        {
+            this.myLogger.LogToFile($"CLI command: {command}");
+            Process process = new Process();
+            ProcessStartInfo startInfo = new ProcessStartInfo()
+            {
+                WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden,
+                FileName = "cmd.exe",
+                Arguments = $"/C {command}"
+            };
+            process.StartInfo = startInfo;
+            process.Start();
+            process.WaitForExit();
+        }
+
+
+        /// <summary>
+        /// Open saves directory
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void OpenSaves_Click(object sender, RoutedEventArgs e)
+        {
+            Process.Start(this.localPath);
+        }
+
+
+        /// <summary>
+        /// Open configs directory
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void OpenConfigs_Click(object sender, RoutedEventArgs e)
+        {
+            Process.Start(this.configFiles);
         }
     }
 }

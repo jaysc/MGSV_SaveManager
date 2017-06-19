@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:MGSV_SaveSwitcher"
         mc:Ignorable="d"
-        Title="MGSV Save Manager" Height="665" Width="450" ResizeMode="CanMinimize" Icon="savemanager.ico" WindowStartupLocation="CenterScreen">
+        Title="MGSV Save Manager" Height="685" Width="450" ResizeMode="CanMinimize" Icon="savemanager.ico" WindowStartupLocation="CenterScreen">
     <StackPanel>
         <StackPanel.Background>
             <ImageBrush ImageSource="launcher_image.jpg" Stretch="UniformToFill" />
@@ -43,13 +43,23 @@
         </Grid>
         
         <Grid Margin="10, 0, 125, 5">
-            <Button Content="Settings" Padding="0 5 0 5" Name="SettingsButton" Background="#FFC10000" Click="LaunchSettings" IsEnabled="False" FontFamily="Tw Cen MT Condensed Extra Bold" FontSize="16" Foreground="Black" BorderBrush="Black"/>
+            <Button Content="Select save first" Padding="0 5 0 5" Name="SettingsButton" Background="#FFC10000" Click="LaunchSettings" IsEnabled="False" FontFamily="Tw Cen MT Condensed Extra Bold" FontSize="16" Foreground="Black" BorderBrush="Black"/>
         </Grid>
 
         <Grid Margin="10, 0, 125, 5">
             <Button Content="Exit" Padding="0 5 0 5" Background="#FFC10000" Click="Exit_Click" FontFamily="Tw Cen MT Condensed Extra Bold" FontSize="16" Foreground="Black" BorderBrush="Black"/>
         </Grid>
-        <Grid Margin="10 30 10 0">
+
+        <Grid Margin="10 20 125 5">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <Button Margin="0 0 10 0" Padding="0 2 0 2" Click="OpenSaves_Click" Grid.Column="0" Content="Saves directory" FontFamily="Tw Cen MT Condensed Extra Bold" Foreground="Black" BorderBrush="Black" Background="#FFC10000"  />
+            <Button Margin="0 0 0 0" Padding="0 2 0 2" Click="OpenConfigs_Click" Grid.Column="1" Content="Configs" FontFamily="Tw Cen MT Condensed Extra Bold" FontSize="14" Foreground="Black" BorderBrush="Black" Background="#FFC10000" />
+        </Grid>
+        
+        <Grid Margin="10 10 10 0">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="3*"/>

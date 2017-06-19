@@ -12,10 +12,10 @@ MGSV Save Manager is a handy, all in one management software to manage save file
 * Multiple saves to switch between
 * Save renaming
 * Save deletion
-* New save creation
-* Scan for saves
-* Configure in game graphics settings
+* Creation of new saves
+* Configure in-game graphics settings
   * Currently Resolution and Display not configurable via the manager.
+* Logging
   
 ## How to use
 **If you want to create new, empty saves, turn off Steam Cloud sync for both MGSV: The Phantom Pain and MGSV: Ground Zeroes. Otherwise Steam will download old cloud synced save.**
@@ -27,4 +27,4 @@ When first running, the program will create a local save directory in **C:\\MGSV
 * **Switch between saves** by selecting a save from the list (only if more than one save found) and clicking **Apply**.
 * **Delete saves** by selecting the save from the list and click **Apply**.
 * If you add a save file manually while the program is running, you can click **Save Scan** to update the save lists.
-If you encounter bugs, please create **an issue** with as accurate description as possible of what you tried to do and at what point the error/bug happened.  
+If you encounter bugs, please create **an issue** with the **log.txt** attached and if possible a short description what you were trying to do. The log file is located in **%programdata%\\MGSV_SaveManager\\logs\\log.txt**.  

@@ -5,6 +5,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.IO;
 using SteamScan;
+using ManagerLogger;
 
 namespace MGSV_SaveSwitcher
 {
@@ -13,30 +14,38 @@ namespace MGSV_SaveSwitcher
     /// </summary>
     public partial class SettingsWindow : Window
     {
+        Logger myLogger;
         string steampath;
         string userid;
         string currentSave;
-        string localPath = "C:\\MGSV_saves\\";
+        string localPath;
         string steamConfigPath;
         private bool handle = true;
         Dictionary<string, string> graphicSettings = new Dictionary<string, string>();
-        MySteamScanner SteamScanner = new MySteamScanner();
+        MySteamScanner SteamScanner;
 
-        public SettingsWindow()
+        public SettingsWindow(MySteamScanner steamscanner, string localdir, string configs)
         {
+            this.myLogger = new Logger(configs);
             InitializeComponent();
-            
+            this.SteamScanner = steamscanner;
             try
             {
                 this.steampath = this.SteamScanner.ScanSteam();
                 this.CurrentUserSettings.Text = this.SteamScanner.GetCurrentUser();
+                Console.WriteLine(this.CurrentUserSettings.Text);
                 this.userid = this.SteamScanner.GetCurrentID();
+                Console.WriteLine(this.userid);
                 this.currentSave = this.SteamScanner.CurrentSave(this.CurrentUserSettings.Text);
-                this.localPath += this.CurrentUserSettings.Text + "\\";
-                this.steamConfigPath = $"{this.steampath.Trim()}userdata\\{this.userid.Trim()}\\287700\\local\\TPP_GRAPHICS_CONFIG";
+                Console.WriteLine(this.currentSave);
+                this.localPath = localdir;
+                Console.WriteLine(this.localPath);
+                this.steamConfigPath = Path.Combine(this.steampath, "userdata", this.userid, "287700\\local\\TPP_GRAPHICS_CONFIG");
+                Console.WriteLine(this.steamConfigPath);
                 this.LoadSettings();
-            } catch
+            } catch (Exception e)
             {
+                this.myLogger.LogToFile($"Error: {e}");
                 MessageBox.Show("Please select user first from the 'Saves' menu.");
                 this.Close();
             }
@@ -222,20 +231,26 @@ namespace MGSV_SaveSwitcher
         /// <param name="settings"></param>
         public void LoadSettingsFromFile()
         {
-            this.graphicSettings = new Dictionary<string, string>();
-            string[] settingsSteam = File.ReadAllLines(this.steamConfigPath);
+            try
+            {
+                this.graphicSettings = new Dictionary<string, string>();
+                string[] settingsSteam = File.ReadAllLines(this.steamConfigPath);
 
-            for (int i = 4; i < 15; i++)
+                for (int i = 4; i < 15; i++)
+                {
+                    string key = settingsSteam[i].Replace(" ", "").Replace("\"", "").Trim().Split(':')[0];
+                    string value = settingsSteam[i].Replace(" ", "").Replace("\"", "").Trim().Split(':')[1].Replace(",", "");
+                    this.graphicSettings.Add(key, value);
+                }
+                for (int i = 18; i < 24; i++)
+                {
+                    string key = settingsSteam[i].Replace(" ", "").Replace("\"", "").Trim().Split(':')[0];
+                    string value = settingsSteam[i].Replace(" ", "").Replace("\"", "").Trim().Split(':')[1].Replace(",", "");
+                    this.graphicSettings.Add(key, value);
+                }
+            } catch (Exception e)
             {
-                string key = settingsSteam[i].Replace(" ", "").Replace("\"", "").Trim().Split(':')[0];
-                string value = settingsSteam[i].Replace(" ", "").Replace("\"", "").Trim().Split(':')[1].Replace(",", "");
-                this.graphicSettings.Add(key, value);
-            }
-            for (int i = 18; i < 24; i++)
-            {
-                string key = settingsSteam[i].Replace(" ", "").Replace("\"", "").Trim().Split(':')[0];
-                string value = settingsSteam[i].Replace(" ", "").Replace("\"", "").Trim().Split(':')[1].Replace(",", "");
-                this.graphicSettings.Add(key, value);
+                this.myLogger.LogToFile($"Error: {e}");
             }
         }
 
@@ -245,7 +260,7 @@ namespace MGSV_SaveSwitcher
         /// <param name="settings"></param>
         private void SaveSettings(Dictionary<string, string> finalsettings)
         {
-            string[] settings = File.ReadAllLines($"{this.steampath.Trim()}userdata\\{this.userid.Trim()}\\287700\\local\\TPP_GRAPHICS_CONFIG");
+            List<string> settings = File.ReadAllLines(Path.Combine(this.steampath, "userdata", this.userid, "287700\\local\\TPP_GRAPHICS_CONFIG")).ToList();
             List<string> temp_settings = new List<string>();
 
             foreach (string line in settings)
@@ -290,10 +305,8 @@ namespace MGSV_SaveSwitcher
                 Console.WriteLine(x);
             }
 
-            File.WriteAllLines($"C:\\MGSV_saves\\{this.CurrentUserSettings.Text}\\{this.currentSave}\\287700\\local\\TPP_GRAPHICS_CONFIG", temp_settings);
-            string command = $"copy /Y C:\\MGSV_saves\\{this.CurrentUserSettings.Text}\\{this.currentSave}\\287700\\local\\TPP_GRAPHICS_CONFIG {this.steampath.Trim()}userdata\\{this.userid}\\287700\\local\\";
-            Console.WriteLine(command);
-            this.CommandPrompter(command);
+            File.WriteAllLines(Path.Combine(this.localPath, this.CurrentUserSettings.Text, this.currentSave, "287700\\local\\TPP_GRAPHICS_CONFIG"), temp_settings);
+            File.Copy(Path.Combine(this.localPath, this.CurrentUserSettings.Text, this.currentSave, "287700\\local\\TPP_GRAPHICS_CONFIG"), Path.Combine(this.steampath, "userdata", this.userid, "287700\\local\\TPP_GRAPHICS_CONFIG"), true);
         }
 
 
@@ -338,6 +351,7 @@ namespace MGSV_SaveSwitcher
             /// Save settings and copy to the currently used save, close window
             this.SaveSettings(settingslist);
             this.LoadSettingsFromFile();
+            this.myLogger.LogToFile("Graphical settings applied.");
             this.Close();
         }
 
@@ -349,6 +363,7 @@ namespace MGSV_SaveSwitcher
         /// <param name="e"></param>
         private void Revert_Click(object sender, RoutedEventArgs e)
         {
+            this.myLogger.LogToFile("Graphical settings, reverting changes.");
             this.LoadSettings();
         }
 
@@ -359,6 +374,7 @@ namespace MGSV_SaveSwitcher
         /// <param name="command"></param>
         private void CommandPrompter(string command)
         {
+            this.myLogger.LogToFile($"CLI command: {command}");
             System.Diagnostics.Process process = new System.Diagnostics.Process();
             System.Diagnostics.ProcessStartInfo startInfo = new System.Diagnostics.ProcessStartInfo()
             {

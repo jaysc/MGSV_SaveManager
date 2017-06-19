@@ -7,6 +7,7 @@ using System.Windows.Media;
 using System.Windows.Navigation;
 using System.Diagnostics;
 using SteamScan;
+using ManagerLogger;
 
 namespace MGSV_SaveSwitcher
 {
@@ -15,12 +16,14 @@ namespace MGSV_SaveSwitcher
     /// </summary>
     public partial class MainWindow : Window
     {
+        Logger myLogger;
         MySteamScanner mySteamScan;
         string steampath = "";
         Dictionary<string, string> username;
 
         public MainWindow(MySteamScanner mySteamScan)
         {
+            this.myLogger = new Logger(mySteamScan.configPath);
             InitializeComponent();
             this.mySteamScan = mySteamScan;
             
@@ -58,7 +61,7 @@ namespace MGSV_SaveSwitcher
 
             try
             {
-                string[] filedata = File.ReadAllLines($"{this.mySteamScan.localDir}\\currentuser.txt");
+                List<string> filedata = File.ReadAllLines(Path.Combine(this.mySteamScan.configPath, "currentuser.txt")).ToList();
                 this.currentUser.Text = filedata[0].Trim();
                 this.currentSave.Text = this.mySteamScan.CurrentSave(this.currentSave.Text);
                 if (this.username.Count > 2)
@@ -68,16 +71,17 @@ namespace MGSV_SaveSwitcher
                 }
                 Console.WriteLine("Read current user from a file");
                 UserCheck();
-            } catch
+            } catch (IOException e)
             {
+                this.myLogger.LogToFile($"Error: {e}");
+                Console.WriteLine($"Error: {e}");
                 Console.WriteLine("Check if less than 2 users");
                 Console.WriteLine(username.Count);
                 if (this.username.Count < 2)
                 {
                     this.currentUser.Text = username.Keys.First();
-                    this.currentSave.Text = this.mySteamScan.CurrentSave(this.currentUser.Text);
-                    this.mySteamScan.CurrentUser(this.currentUser.Text, this.username[this.currentUser.Text]);
                     UserCheck();
+                    this.mySteamScan.CurrentUser(this.currentUser.Text, this.username[this.currentUser.Text]);
                 }
                 else
                 {
@@ -250,6 +254,7 @@ namespace MGSV_SaveSwitcher
                     this.newSaveName.Text = "";
                     SaveListing();
                     Console.WriteLine("new save operation completed.");
+                    this.myLogger.LogToFile($"Created a save named {newSave}");
                 }
                 else if (msgResult == MessageBoxResult.No)
                 {
@@ -281,6 +286,7 @@ namespace MGSV_SaveSwitcher
                 if (msgResult == MessageBoxResult.Yes)
                 {
                     this.mySteamScan.DeleteSave(saveSelection, this.currentUser.Text);
+                    this.myLogger.LogToFile($"Save {saveSelection} deleted.");
                 }
                 else if (msgResult == MessageBoxResult.No)
                 {
@@ -327,6 +333,7 @@ namespace MGSV_SaveSwitcher
             MessageBoxResult msgResult = MessageBox.Show($"Rename '{this.currentSave.Text}' to '{this.RenameSaveName}' ?", "Rename Save", MessageBoxButton.YesNo);
             if (msgResult == MessageBoxResult.Yes)
             {
+                this.myLogger.LogToFile($"Renaming save {this.currentSave.Text} to {this.RenameSave.Text}");
                 this.mySteamScan.RenameSave(this.currentSave.Text, this.currentUser.Text, this.RenameSaveName.Text);
                 this.currentSave.Text = this.mySteamScan.CurrentSave(this.currentUser.Text);
             }
@@ -337,16 +344,6 @@ namespace MGSV_SaveSwitcher
             this.RenameSaveName.Text = "";
         }
 
-
-        /// <summary>
-        /// Disable main window elements when settings window is open.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void EnableMain(object sender, System.ComponentModel.CancelEventArgs e)
-        {
-            this.IsEnabled = true;
-        }
 
         private void BackWindow_Click(object sender, RoutedEventArgs e)
         {
