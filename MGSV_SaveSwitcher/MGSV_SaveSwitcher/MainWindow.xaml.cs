@@ -21,16 +21,23 @@ namespace MGSV_SaveSwitcher
         string steampath = "";
         Dictionary<string, string> username;
 
-        public MainWindow(MySteamScanner mySteamScan)
+        public MainWindow(MySteamScanner mySteamScan, string steam)
         {
             this.myLogger = new Logger(mySteamScan.configPath);
             InitializeComponent();
             this.mySteamScan = mySteamScan;
-            
-            this.steampath = this.mySteamScan.ScanSteam();
+
+            this.steampath = steam;
             Console.WriteLine(this.steampath);
 
-            SaveManager();
+            if (this.steampath == "")
+            {
+                MessageBox.Show("Steam not found, if you are sure it's installed and keep getting this message, please make an bug report to the GitHub project page.");
+                this.Close();
+            } else
+            {
+                SaveManager();
+            }
         }
 
 
@@ -39,20 +46,17 @@ namespace MGSV_SaveSwitcher
         /// </summary>
         private void SaveManager()
         {
-            Console.WriteLine("Starting steam scan");
-
-            if (this.steampath == "")
-            {
-                MessageBox.Show("Steam not found, if you are sure it's installed and keep getting this message, please make an bug report to the GitHub project page.");
-                this.Close();
-            }
+            this.myLogger.LogToFile("Save manager started.");
+            
             this.steamPath.Text = this.steampath;
 
 
             Console.WriteLine("Getting usernames and IDs");
+            this.myLogger.LogToFile("Getting users.");
             this.username = this.mySteamScan.UserScan();
             Console.WriteLine(username);
 
+            this.myLogger.LogToFile("Adding usernames to the userlist.");
             foreach (KeyValuePair<string, string> x in this.username)
             {
                 Console.WriteLine(x.Key + " " + x.Value);
@@ -64,8 +68,9 @@ namespace MGSV_SaveSwitcher
                 List<string> filedata = File.ReadAllLines(Path.Combine(this.mySteamScan.configPath, "currentuser.txt")).ToList();
                 this.currentUser.Text = filedata[0].Trim();
                 this.currentSave.Text = this.mySteamScan.CurrentSave(this.currentSave.Text);
-                if (this.username.Count > 2)
+                if (this.username.Count > 1)
                 {
+                    this.myLogger.LogToFile($"{this.username.Count} users found, enabling user list.");
                     this.userList.IsEnabled = true;
                     this.applyUser.IsEnabled = true;
                 }
@@ -90,7 +95,6 @@ namespace MGSV_SaveSwitcher
                     UserCheck();
                 }
             }
-            
         }
 
 

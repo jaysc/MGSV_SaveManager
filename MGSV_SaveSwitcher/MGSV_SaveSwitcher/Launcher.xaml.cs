@@ -21,8 +21,8 @@ namespace MGSV_SaveSwitcher
         WebClient webReader = new WebClient();
         string branch = "master";
         bool alertOnOff = false;
-        string currentVersion = "v2.5.0";
-        int curVersion = 250;
+        string currentVersion = "v2.5.1";
+        int curVersion = 251;
         string configFiles = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "MGSV_SaveManager");
         string localPath;
         string steamPath;
@@ -272,11 +272,11 @@ namespace MGSV_SaveSwitcher
         private void LaunchSettings(object sender, RoutedEventArgs e)
         {
             Console.WriteLine("open saves window");
-            SettingsWindow SettingsWindow = new SettingsWindow(this.SteamScanner, this.localPath, this.configFiles);
+            SettingsWindow SettingsWindow = new SettingsWindow(this.SteamScanner, this.localPath, this.steamPath, this.configFiles);
             try {
                 SettingsWindow.Show();
                 this.IsEnabled = false;
-                this.myLogger.LogToFile("Log: Settings menu opened.");
+                this.myLogger.LogToFile("Settings menu opened.");
             } catch (Exception x)
             {
                 Console.WriteLine("Settings not opened.");
@@ -291,7 +291,7 @@ namespace MGSV_SaveSwitcher
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void EnableLauncher(object sender, System.ComponentModel.CancelEventArgs e)
+        private void EnableLauncher(object sender, EventArgs e)
         {
             this.myLogger.LogToFile("Launcher enabled.");
             this.IsEnabled = true;
@@ -326,6 +326,7 @@ namespace MGSV_SaveSwitcher
             App.Current.Shutdown();
         }
 
+
         /// <summary>
         /// Launch saves window
         /// </summary>
@@ -333,12 +334,24 @@ namespace MGSV_SaveSwitcher
         /// <param name="e"></param>
         private void Saves_Click(object sender, RoutedEventArgs e)
         {
+            this.IsEnabled = false;
             this.myLogger.LogToFile("Opening saves window.");
             Console.WriteLine("open saves window");
-            MainWindow SavesWindow = new MainWindow(this.SteamScanner);
-            SavesWindow.Show();
-            this.IsEnabled = false;
+            MainWindow SavesWindow = new MainWindow(this.SteamScanner, this.steamPath);
             SavesWindow.Closing += this.EnableLauncher;
+            try
+            {
+                SavesWindow.Show();
+                this.IsEnabled = false;
+                this.myLogger.LogToFile("Saves menu opened.");
+                
+            }
+            catch (Exception x)
+            {
+                Console.WriteLine("Saves not opened.");
+                this.myLogger.LogToFile($"Error: Saves menu not opened. {x}");
+                this.IsEnabled = true;
+            }
         }
 
 
@@ -352,7 +365,7 @@ namespace MGSV_SaveSwitcher
             Process process = new Process();
             ProcessStartInfo startInfo = new ProcessStartInfo()
             {
-                WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden,
+                WindowStyle = ProcessWindowStyle.Hidden,
                 FileName = "cmd.exe",
                 Arguments = $"/C {command}"
             };
@@ -369,6 +382,7 @@ namespace MGSV_SaveSwitcher
         /// <param name="e"></param>
         private void OpenSaves_Click(object sender, RoutedEventArgs e)
         {
+            this.myLogger.LogToFile("Opening saves directory.");
             Process.Start(this.localPath);
         }
 
@@ -380,6 +394,7 @@ namespace MGSV_SaveSwitcher
         /// <param name="e"></param>
         private void OpenConfigs_Click(object sender, RoutedEventArgs e)
         {
+            this.myLogger.LogToFile("Opening config directory.");
             Process.Start(this.configFiles);
         }
     }

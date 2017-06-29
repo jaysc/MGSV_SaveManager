@@ -24,14 +24,14 @@ namespace MGSV_SaveSwitcher
         Dictionary<string, string> graphicSettings = new Dictionary<string, string>();
         MySteamScanner SteamScanner;
 
-        public SettingsWindow(MySteamScanner steamscanner, string localdir, string configs)
+        public SettingsWindow(MySteamScanner steamscanner, string localdir, string steam, string configs)
         {
             this.myLogger = new Logger(configs);
             InitializeComponent();
             this.SteamScanner = steamscanner;
             try
             {
-                this.steampath = this.SteamScanner.ScanSteam();
+                this.steampath = steam;
                 this.CurrentUserSettings.Text = this.SteamScanner.GetCurrentUser();
                 Console.WriteLine(this.CurrentUserSettings.Text);
                 this.userid = this.SteamScanner.GetCurrentID();

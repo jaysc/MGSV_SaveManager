@@ -93,10 +93,12 @@ namespace SteamScan
                 this.myLogger.LogToFile("Searching for Steam.exe.");
                 foreach (string x in temp_path)
                 {
+                    this.myLogger.LogToFile($"Possible steam path: {x}");
                     /// Check if directory contains Steam.exe
                     if (x.Contains("Steam.exe"))
                     {
                         this.steamPath = x.Replace("Steam.exe", "").Replace("\"", "");
+                        this.myLogger.LogToFile($"Searching steam from {this.steamPath}");
                         /// Check if the directory contains userdata folder
                         if (Directory.GetDirectories(this.steamPath, "userdata").Length > 0)
                         {
@@ -106,7 +108,7 @@ namespace SteamScan
                                 File.WriteAllText(Path.Combine(this.configPath, "steam_path.txt"), this.steamPath.Trim());
                                 File.Delete(Path.Combine(this.configPath, "temp_path.txt"));
                                 File.Delete(Path.Combine(this.configPath, "drvs.txt"));
-                                this.myLogger.LogToFile("MGSV installation found.");
+                                this.myLogger.LogToFile($"MGSV installation found in {this.steamPath}.");
                                 return this.steamPath;
                             }
                             else
@@ -152,11 +154,11 @@ namespace SteamScan
             this.userNames = new List<string>();
             this.NameID = new Dictionary<string, string>();
             Console.WriteLine("Scanning for users.");
-            string command = $"dir /b /AD {Path.Combine(this.steamPath.Trim(), "userdata")}> {Path.Combine(this.configPath, "users.txt")}";
+            string command = $"dir /b /AD \"{Path.Combine(this.steamPath.Trim(), "userdata")}\"> \"{Path.Combine(this.configPath, "users.txt")}\"";
             Console.WriteLine(command);
             CommandPrompter(command);
             try { 
-                List<string> users = File.ReadAllLines($"{this.configPath.Trim()}\\users.txt").ToList<string>();
+                List<string> users = File.ReadAllLines(Path.Combine(this.configPath.Trim(), "users.txt")).ToList<string>();
                 foreach (string userid in users)
                 {
                     if (userid != "anonymous")
@@ -169,6 +171,7 @@ namespace SteamScan
                                 if (line.Contains("PersonaName"))
                                 {
                                     string username = line.Replace("PersonaName", "").Replace("		", "").Replace("\"", "").ToLower();
+                                    this.myLogger.LogToFile($"Found user {username} with userid {userid}.");
                                     Console.WriteLine(username);
                                     if (this.NameID.ContainsKey(username))
                                     {

@@ -55,8 +55,8 @@
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
-            <Button Margin="0 0 10 0" Padding="0 2 0 2" Click="OpenSaves_Click" Grid.Column="0" Content="Saves directory" FontFamily="Tw Cen MT Condensed Extra Bold" Foreground="Black" BorderBrush="Black" Background="#FFC10000"  />
-            <Button Margin="0 0 0 0" Padding="0 2 0 2" Click="OpenConfigs_Click" Grid.Column="1" Content="Configs" FontFamily="Tw Cen MT Condensed Extra Bold" FontSize="14" Foreground="Black" BorderBrush="Black" Background="#FFC10000" />
+            <Button Margin="0 0 10 0" Padding="0 3 0 3" Click="OpenSaves_Click" Grid.Column="0" Content="Saves directory" FontFamily="Tw Cen MT Condensed Extra Bold" FontSize="16" Foreground="Black" BorderBrush="Black" Background="#FFC10000"  />
+            <Button Margin="0 0 0 0" Padding="0 3 0 3" Click="OpenConfigs_Click" Grid.Column="1" Content="Configs" FontFamily="Tw Cen MT Condensed Extra Bold" FontSize="16" Foreground="Black" BorderBrush="Black" Background="#FFC10000" />
         </Grid>
         
         <Grid Margin="10 10 10 0">

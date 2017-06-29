@@ -1,6 +1,2 @@
-Release 2.5.0
-- Check also if MGSV is installed
-- User selectable save folder directory
-- Common config files stored in separate directory
-- Bug fixes and optimizations related to file management
-- Logging system
+Release 2.5.1
+- Fixed bug when searching for steam users and the directory path contains spaces.
