@@ -192,6 +192,7 @@ namespace MGSV_SaveSwitcher
         private void UpdateCheck()
         {
             this.myLogger.LogToFile("Checking for updates...");
+            this.myLogger.LogToFile($"Current version: {this.curVersion}");
             try
             {
                 string webRelease = this.webReader.DownloadString($"https://raw.githubusercontent.com/thatsafy/MGSV_SaveManager/{this.branch}/latest.txt");
