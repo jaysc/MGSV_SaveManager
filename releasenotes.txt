@@ -1,2 +1,2 @@
 Release 2.5.1
-- Fixed bug when searching for steam users and the directory path contains spaces.
+- Fixed a bug (well, more like an oversight) where MGSV is not found if not installed in Steam directory

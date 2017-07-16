@@ -21,8 +21,8 @@ namespace MGSV_SaveSwitcher
         WebClient webReader = new WebClient();
         string branch = "master";
         bool alertOnOff = false;
-        string currentVersion = "v2.5.1";
-        int curVersion = 251;
+        string currentVersion = "v2.5.2";
+        int curVersion = 252;
         string configFiles = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "MGSV_SaveManager");
         string localPath;
         string steamPath;

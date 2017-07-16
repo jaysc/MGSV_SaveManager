@@ -12,7 +12,8 @@ namespace SteamScan
         public string localDir;
         public string configPath;
         private string steamPath = "";
-        private string MGSV_Game = "steamapps\\common\\MGS_TPP\\mgsvtpp.exe";
+        private string gamePath = "";
+        private string MGSV_Game = "mgsvtpp.exe";
         private static string MGSV1 = "287700";
         private static string MGSV2 = "311340";
 
@@ -64,12 +65,14 @@ namespace SteamScan
                 Console.WriteLine("trying to find steam_path.txt");
                 this.steamPath = File.ReadAllLines(Path.Combine(this.configPath, "steam_path.txt"))[0].Replace("\"", "");
                 Console.WriteLine("Steam path found");
+                this.gamePath = File.ReadAllLines(Path.Combine(this.configPath, "MGSV.txt"))[0].Replace("\"", "");
                 this.myLogger.LogToFile($"Steam installed in {this.steamPath}");
+                this.myLogger.LogToFile($"MGSV installed in {this.gamePath}");
                 return this.steamPath;
             } catch (IOException e)
             {
-                this.myLogger.LogToFile($"Steam path not yet set, {e}");
-                Console.WriteLine("steam path not found, scanning...");
+                this.myLogger.LogToFile($"Steam or game path not yet set, {e}");
+                Console.WriteLine("steam/mgsv path not found, scanning...");
                 FirstRun();
 
                 this.myLogger.LogToFile("Listing available drives.");
@@ -103,16 +106,43 @@ namespace SteamScan
                         if (Directory.GetDirectories(this.steamPath, "userdata").Length > 0)
                         {
                             this.myLogger.LogToFile($"Steam found in {this.steamPath}");
-                            if (Directory.GetDirectories(Path.Combine(this.steamPath, "steamapps\\common"), "MGS_TPP").Length > 0)
+                            /// Check if MGSV in Steam install directory
+                            if (Directory.GetDirectories(Path.Combine(this.steamPath, "steamapps\\common"), "MGS_TPP").Length < 0)
                             {
                                 File.WriteAllText(Path.Combine(this.configPath, "steam_path.txt"), this.steamPath.Trim());
                                 File.Delete(Path.Combine(this.configPath, "temp_path.txt"));
                                 File.Delete(Path.Combine(this.configPath, "drvs.txt"));
                                 this.myLogger.LogToFile($"MGSV installation found in {this.steamPath}.");
+                                this.gamePath = $"{Path.Combine(this.steamPath, "steamapps\\common\\MGS_TPP")}";
                                 return this.steamPath;
                             }
+                            /// If MGSV not found under Steam install directory, search elsewhere
                             else
                             {
+                                this.myLogger.LogToFile($"Error: MGSV not found in the Steam install path, searching elsewhere...");
+                                for (int i = 1; i < drives.Count; i++)
+                                {
+                                    drives[i] = drives[i][0] + ":";
+                                    string findMGSV = $"{drives[i]} && cd {drives[i]}\\ && dir /s /b MGS_TPP >> \"{Path.Combine(this.configPath, "mgsv_path.txt")}\"";
+                                    CommandPrompter(findMGSV);
+                                }
+
+                                List<string> mgsv_path = File.ReadAllLines(Path.Combine(this.configPath, "mgsv_path.txt")).ToList<string>();
+                                foreach (string path in mgsv_path)
+                                {
+                                    this.myLogger.LogToFile($"Checking path {path}");
+                                    if (Directory.GetFiles(Path.Combine(path.Replace("\"", "")), "mgsvtpp.exe").Length > 0)
+                                    {
+                                        this.gamePath = $"{path}";
+                                        this.myLogger.LogToFile($"Found MGSV installation in {this.gamePath}");
+                                        File.Delete(Path.Combine(this.configPath, "temp_path.txt"));
+                                        File.Delete(Path.Combine(this.configPath, "mgsv_path.txt"));
+                                        File.Delete(Path.Combine(this.configPath, "drvs.txt"));
+                                        File.WriteAllText(Path.Combine(this.configPath, "steam_path.txt"), this.steamPath.Trim());
+                                        File.WriteAllText($"{Path.Combine(this.configPath, "MGSV.txt")}", this.gamePath);
+                                        return this.steamPath;
+                                    }
+                                }
                                 this.myLogger.LogToFile("Error, MGSV installation not found.");
                                 return "Error:No MGSV installation found.";
                             }
@@ -514,8 +544,8 @@ namespace SteamScan
             try
             {
                 Console.WriteLine("Launching MGSV: TPP game");
-                Console.WriteLine($"{this.steamPath.Trim()}{MGSV_Game}");
-                System.Diagnostics.Process.Start($"{this.steamPath.Trim()}{MGSV_Game}");
+                Console.WriteLine($"{Path.Combine(this.gamePath, this.MGSV_Game)}");
+                System.Diagnostics.Process.Start($"{Path.Combine(this.gamePath, this.MGSV_Game)}");
             } catch (Exception e)
             {
                 this.myLogger.LogToFile($"Error while launching MGSV, {e}");
