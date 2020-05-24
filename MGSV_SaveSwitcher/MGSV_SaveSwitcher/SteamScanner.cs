@@ -3,6 +3,7 @@ using System.IO;
 using System.Collections.Generic;
 using System.Linq;
 using ManagerLogger;
+using System.Windows;
 
 namespace SteamScan
 {
@@ -53,11 +54,121 @@ namespace SteamScan
             return this.NameID[username];
         }
 
+        public string ScanSteam()
+        {
+            if(ScanSteamLocation() && ScanGameLocation())
+            {
+                return this.steamPath;
+            }
+            else
+            {
+                return "";
+            }
+        }
+
+        public bool ScanSteamLocation()
+        {
+            try
+            {
+                this.myLogger.LogToFile("Attempting reading steam path from the file.");
+                Console.WriteLine("trying to find steam_path.txt");
+                this.steamPath = File.ReadAllLines(Path.Combine(this.configPath, "steam_path.txt"))[0].Replace("\"", "");
+                Console.WriteLine("Steam path found");
+                this.myLogger.LogToFile($"Steam installed in {this.steamPath}");
+                return true;
+            } catch (IOException e)
+            {
+                this.myLogger.LogToFile($"Steam or game path not yet set, {e}");
+                Console.WriteLine("steam/mgsv path not found, scanning...");
+                FirstRun();
+
+                MessageBox.Show("Select your steam location");
+                string steamPath = "";
+                using (var dialog = new System.Windows.Forms.FolderBrowserDialog())
+                {
+                    dialog.SelectedPath = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
+                    System.Windows.Forms.DialogResult result = dialog.ShowDialog();
+                    if (result == System.Windows.Forms.DialogResult.OK)
+                    {
+                        if (File.Exists(Path.Combine(dialog.SelectedPath, "Steam.exe")) || File.Exists(Path.Combine(dialog.SelectedPath, "steam.exe")))
+                        {
+                            this.myLogger.LogToFile($"Found steam at {steamPath}");
+                            steamPath = dialog.SelectedPath;
+                        }
+                    }
+                }
+
+                if (!String.IsNullOrEmpty(steamPath))
+                {
+                    this.steamPath = steamPath.Replace("Steam.exe", "").Replace("\"", ""); ;
+                    File.WriteAllText(Path.Combine(this.configPath, "steam_path.txt"), this.steamPath.Trim());
+                    return true;
+                }
+                else
+                {
+                    Console.WriteLine("Cancelled or error");
+                    this.myLogger.LogToFile("Steam location selection cancelled.");
+                    return false;
+                }
+            }
+        }
+
+        public bool ScanGameLocation()
+        {
+            try
+            {
+                this.myLogger.LogToFile("Attempting reading game path from the file.");
+                this.gamePath = File.ReadAllLines(Path.Combine(this.configPath, "MGSV.txt"))[0].Replace("\"", "");
+                this.myLogger.LogToFile($"MGSV installed in {this.gamePath}");
+                return true;
+            }
+            catch (IOException e)
+            {
+                if (Directory.GetDirectories(Path.Combine(this.steamPath, "steamapps\\common"), "MGS_TPP").Length > 0)
+                {
+                    this.myLogger.LogToFile($"MGSV installation found in {this.steamPath}.");
+                    this.gamePath = $"{Path.Combine(this.steamPath, "steamapps\\common\\MGS_TPP")}";
+                    return true;
+                }
+                else
+                {
+                    MessageBox.Show("Select your game location");
+                    string gamePath = "";
+                    using (var dialog = new System.Windows.Forms.FolderBrowserDialog())
+                    {
+                        dialog.SelectedPath = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
+                        System.Windows.Forms.DialogResult result = dialog.ShowDialog();
+                        if (result == System.Windows.Forms.DialogResult.OK)
+                        {
+                            if (File.Exists(Path.Combine(dialog.SelectedPath, "mgsvtpp.exe")))
+                            {
+                                this.myLogger.LogToFile($"Found game location at {steamPath}");
+                                gamePath = dialog.SelectedPath;
+                            }
+                        }
+                    }
+
+                    if (!String.IsNullOrEmpty(gamePath))
+                    {
+                        this.gamePath = gamePath;
+                        File.WriteAllText($"{Path.Combine(this.configPath, "MGSV.txt")}", this.gamePath);
+                        return true;
+                    }
+                    else
+                    {
+                        Console.WriteLine("Cancelled or error");
+                        this.myLogger.LogToFile("Game location selection cancelled.");
+                        return false;
+                    }
+                }
+            }
+        }
+
 
         /// <summary>
         /// Find Steam install directory
         /// </summary>
-        public string ScanSteam()
+        public string ScanSteamOriginal()
         {
             try
             {
@@ -553,5 +664,13 @@ namespace SteamScan
             
         }
 
+    }
+
+    public static class StringExtensions
+    {
+        public static bool Contains(this string source, string toCheck, StringComparison comp)
+        {
+            return source?.IndexOf(toCheck, comp) >= 0;
+        }
     }
 }

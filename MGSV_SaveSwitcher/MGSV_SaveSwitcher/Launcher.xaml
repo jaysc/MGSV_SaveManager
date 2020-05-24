@@ -20,7 +20,9 @@
             <TextBlock Grid.Column="0" HorizontalAlignment="Left" Margin="15 0 10 0" VerticalAlignment="Center">
                     <Hyperlink Name="GitHubLink" IsEnabled="True" TextDecorations="None" NavigateUri="https://github.com/thatsafy/MGSV_SaveManager" RequestNavigate="Hyperlink_RequestNavigate">
                         <Image Name="GitHubImage" Visibility="Visible" Source="GitHub-Mark_White.png" Width="30" />
-                        
+                    </Hyperlink>
+                    <Hyperlink Name="GitHubLink_modified" IsEnabled="True" TextDecorations="None" NavigateUri="https://github.com/jaysc/MGSV_SaveManager" RequestNavigate="Hyperlink_RequestNavigate">
+                        <Image Name="GitHubImage_modified" Visibility="Visible" Source="GitHub-Mark_White.png" Width="30" />
                     </Hyperlink>
             </TextBlock>
             <TextBlock Grid.Column="1" Text="Metal Gear Solid V: The Phantom Pain" Foreground="White" Margin="10 10 10 0" HorizontalAlignment="Center" FontFamily="Tw Cen MT Condensed Extra Bold" FontSize="16"/>
@@ -32,7 +34,7 @@
             </TextBlock>
         </Grid>
         
-        <TextBlock Text="Save Manager" Foreground="White" Margin="10 0 10 5" HorizontalAlignment="Center" FontFamily="Tw Cen MT Condensed Extra Bold" FontSize="24"/>
+        <TextBlock Text="Save Manager (Modified)" Foreground="White" Margin="10 0 10 5" HorizontalAlignment="Center" FontFamily="Tw Cen MT Condensed Extra Bold" FontSize="24"/>
 
         <Grid Margin="10, 350, 125, 5">
             <Button Content="Launch MGSV: TPP" Name="LaunchGameButton"  Padding="0 5 0 5" FontFamily="Tw Cen MT Condensed Extra Bold" IsEnabled="False" Click="LaunchGame_Click" FontSize="16" Background="#FFC10000" Foreground="Black" BorderBrush="Black"/>
@@ -56,7 +58,7 @@
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
             <Button Margin="0 0 10 0" Padding="0 3 0 3" Click="OpenSaves_Click" Grid.Column="0" Content="Saves directory" FontFamily="Tw Cen MT Condensed Extra Bold" FontSize="16" Foreground="Black" BorderBrush="Black" Background="#FFC10000"  />
-            <Button Margin="0 0 0 0" Padding="0 3 0 3" Click="OpenConfigs_Click" Grid.Column="1" Content="Configs" FontFamily="Tw Cen MT Condensed Extra Bold" FontSize="16" Foreground="Black" BorderBrush="Black" Background="#FFC10000" />
+            <Button Margin="0 0 0 0" Padding="0 3 0 3" Click="OpenConfigs_Click" Grid.Column="1" Content="Config directory" FontFamily="Tw Cen MT Condensed Extra Bold" FontSize="16" Foreground="Black" BorderBrush="Black" Background="#FFC10000" />
         </Grid>
         
         <Grid Margin="10 10 10 0">

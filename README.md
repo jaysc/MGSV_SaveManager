@@ -1,5 +1,17 @@
 # MGSV Save Manager
-If you experience bugs and errors, please create an issue with as accurate description of the issue as possible so I can try replicate and fix it.  
+
+This has been modified slightly since it wasn't working as I wanted it to. These are just minor tweaks and I have tried to keep the core logic the same.
+
+- Asks for steam and game installation location
+  - Previously it would try and scan your hard drives, now it will asks for the game location.
+- Config files and logger is stored in the same folder where the application was ran. (Creates a new folder called `MGSV_SaveManager`)
+- Minor UI tweaks
+
+In general, I wouldn't call this program the most stable but seems to do the job.
+
+---
+
+If you experience bugs and errors, please create an issue with as accurate description of the issue as possible so I can try replicate and fix 
 Download the latest release from the [Releases](https://github.com/thatsafy/MGSV_Save_Switcher/releases).  
 Project wiki page on [Metal Gear Modding Wikia](http://metalgearmodding.wikia.com/wiki/Metal_Gear_Solid_V_Save_Manager)  
   

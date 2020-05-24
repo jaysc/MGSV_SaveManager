@@ -21,9 +21,9 @@ namespace MGSV_SaveSwitcher
         WebClient webReader = new WebClient();
         string branch = "master";
         bool alertOnOff = false;
-        string currentVersion = "v2.5.2";
-        int curVersion = 252;
-        string configFiles = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "MGSV_SaveManager");
+        string currentVersion = "v2.5.3";
+        int curVersion = 253;
+        string configFiles = Path.Combine(Path.GetDirectoryName(System.Reflection.Assembly.GetEntryAssembly().Location), "MGSV_SaveManager");
         string localPath;
         string steamPath;
 
@@ -34,7 +34,7 @@ namespace MGSV_SaveSwitcher
             InitializeComponent();
             Closing += LauncherClosing;
             this.Version.Text = this.currentVersion;
-            this.UpdateCheck();
+            //this.UpdateCheck();
             
             try
             {
@@ -113,28 +113,35 @@ namespace MGSV_SaveSwitcher
         /// </summary>
         private void CopyOld()
         {
-            this.CommandPrompter($"dir /b C:\\MGSV_saves > {Path.Combine(this.configFiles, "old_files.txt")}");
-            this.CommandPrompter($"dir /b /ad C:\\MGSV_saves > {Path.Combine(this.configFiles, "save_folders.txt")}");
-            List<string> oldfiles = new List<string>(){"currentuser.txt", "current_save.txt", "steam_path.txt", "users.txt"};
-            List<string> old_configs = File.ReadAllLines(Path.Combine(this.configFiles, "old_files.txt")).ToList<string>();
-            List<string> old_saves = File.ReadAllLines(Path.Combine(this.configFiles, "save_folders.txt")).ToList<string>();
-
-            Directory.CreateDirectory(this.localPath);
-
-            foreach (string x in old_configs)
+            try
             {
-                if (oldfiles.Contains(x))
+                this.CommandPrompter($"dir /b C:\\MGSV_saves > {Path.Combine(this.configFiles, "old_files.txt")}");
+                this.CommandPrompter($"dir /b /ad C:\\MGSV_saves > {Path.Combine(this.configFiles, "save_folders.txt")}");
+                List<string> oldfiles = new List<string>() { "currentuser.txt", "current_save.txt", "steam_path.txt", "users.txt" };
+                List<string> old_configs = File.ReadAllLines(Path.Combine(this.configFiles, "old_files.txt")).ToList<string>();
+                List<string> old_saves = File.ReadAllLines(Path.Combine(this.configFiles, "save_folders.txt")).ToList<string>();
+
+                Directory.CreateDirectory(this.localPath);
+
+                foreach (string x in old_configs)
                 {
-                    File.Copy(Path.Combine("C:\\MGSV_saves", x.Trim()), Path.Combine(this.configFiles, x.Trim()), true);
+                    if (oldfiles.Contains(x))
+                    {
+                        File.Copy(Path.Combine("C:\\MGSV_saves", x.Trim()), Path.Combine(this.configFiles, x.Trim()), true);
+                    }
                 }
+                foreach (string x in old_saves)
+                {
+                    this.CommandPrompter($"xcopy /E /Y {Path.Combine("C:\\MGSV_saves", x)} {Path.Combine(this.localPath, x)}\\");
+                }
+                File.Delete(Path.Combine(this.configFiles, "old_files.txt"));
+                File.Delete(Path.Combine(this.configFiles, "save_folders.txt"));
+                this.myLogger.LogToFile("Old files copied to the new location.");
             }
-            foreach (string x in old_saves)
+            catch
             {
-                this.CommandPrompter($"xcopy /E /Y {Path.Combine("C:\\MGSV_saves", x)} {Path.Combine(this.localPath, x)}\\");
+
             }
-            File.Delete(Path.Combine(this.configFiles, "old_files.txt"));
-            File.Delete(Path.Combine(this.configFiles, "save_folders.txt"));
-            this.myLogger.LogToFile("Old files copied to the new location.");
         }
 
 
@@ -384,7 +391,7 @@ namespace MGSV_SaveSwitcher
         private void OpenSaves_Click(object sender, RoutedEventArgs e)
         {
             this.myLogger.LogToFile("Opening saves directory.");
-            Process.Start(this.localPath);
+            Process.Start(new ProcessStartInfo { FileName= "explorer.exe", Arguments = this.localPath });
         }
 
 
@@ -396,7 +403,7 @@ namespace MGSV_SaveSwitcher
         private void OpenConfigs_Click(object sender, RoutedEventArgs e)
         {
             this.myLogger.LogToFile("Opening config directory.");
-            Process.Start(this.configFiles);
+            Process.Start(new ProcessStartInfo { FileName= "explorer.exe", Arguments = this.configFiles });
         }
     }
 }
